@@ -1,0 +1,23 @@
+teamNumber: The numeric team value (e.g. 6413)
+compLevel: The match level ("qm"=Qualifiers, "sf"=Playoffs, "f"=Finals)
+matchNum: The match number (e.g 1)
+scouter: The quantitative scouters name
+
+autoHub: Number of fuel scored in the Hub during autonomous
+autoHubMiss: Number of fuel missed in the Hub during autonomous (NOT COLLECTED SO ALWAYS 0)
+
+teleHub: Number of fuel scored in the Hub during teleop
+teleHubMiss: Number of fuel missed in the Hub during teleop (NOT COLLECTED SO ALWAYS 0)
+
+noShow: The robot was a "No Show" for the match (0=No, 1=Yes so all scores MUST be 0)
+died: The robot stopped/died/disabled/tipped during the match (0=No, 1=Yes)
+relayed: Did they relay fuel during the match (0=No, 1=Yes)
+herded: Did they herd fuel during the match (0=No, 1=Yes)
+comments: Scouter comments
+
+defenseScouter: The qualitative scouters name
+defense: How well do they play defense (0=Not attempted, 1=Ineffective, 2=Semi-effective, 3=Effecive, 4=Very effective)
+
+climb: REMOVED 2026
+card: REMOVED 2026
+role: REMOVED 2026

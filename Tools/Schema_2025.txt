@@ -36,5 +36,8 @@ card: What card they received during the match (0=None, 1=Yellow, 2=Red)
 role: What was the robot's primary role during the match (0=None, 1=Offense, 2=Defense)
 comments: Scouter comments
 
+defenseScouter: The qualitative scouters name
+defense: How well do they play defense (0=Not attempted, 1=Ineffective, 2=Semi-effective, 3=Effecive, 4=Very effective)
+
 leave: REMOVED 2025
 park: REMOVED 2025
