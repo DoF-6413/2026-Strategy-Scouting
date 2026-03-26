@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- For 2026 we are collecting much less quantitative data due to the game mechanics.  The data cache is being reused since it proved
+            so useful last year.
+		-->
+		<title>Degrees of Freedom Scouting</title>
+		<script src="jquery-3.6.1.min.js"></script>
+		<script src="qrcode.min.js"></script>
+		<script src="bootstrap.min.js"></script>
+		<link src="bootstrap.min.js.map"></link>
+		<!-- The following scripts are being cribbed from ScoutingPASS by PWNAGERobotics https://github.com/PWNAGERobotics/ScoutingPASS
+			so that we can improve the UI of our scouting app.  We are borrowing only what we need since we are not totally using the
+			ScoutingPASS scripts and design since they auto-inject design elements and build a custom page that "swipes" based on the
+			game state.  We continue to borrow the scripts that let us refine the UI to suit our needs.
+			
+			NOTE: We are NOT using the CocoNuts way of loading scripts ala sw.js.  They used a service worker but had to update the script in
+			2023 to move all scripts OUT of a folder below the page and into the same subdirectory.  The ScoutingPASS do not have that issue
+			because they simply load them using SCRIPT tags in the head of the page.  I like this KISS approach even if it may not be the current
+			"in favor" way of loading scripts.  We are loading locally over Wi-Fi and we only do it once so we dont need to be fancy and add
+			any deferred loading bits for now.
+		-->
+		<script src="config.js"></script>
+		<script src="TBAInterface.js"></script>
+		<script src="DoFscouting.js"></script>
+		<script>
+            // Prevent an accidental page refresh or Back from forcing an unwanted page reload.
+			const onConfirmRefresh = function ( event ) {
+				event.preventDefault();
+				return event.returnValue = "Are you sure you want to STOP scouting?";
+			}
+			
+		    window.addEventListener( "beforeunload", onConfirmRefresh, { capture: true } );
+
+            // A light/dark mode toggle
+
+            var storedTheme = localStorage.getItem( 'theme' );
+
+            if ( storedTheme == null || storedTheme.length == 0 ) {
+                // No theme stored so use the browsers setting
+                if ( window.matchMedia && window.matchMedia( '(prefers-color-scheme: dark)' ).matches ) {
+                    $('html').attr('data-bs-theme', 'dark');
+                    localStorage.setItem( 'theme', 'dark' );
+                    storedTheme = 'dark';
+                    }
+                else {
+                    localStorage.setItem( 'theme', 'light' );
+                    storedTheme = 'light';
+                    }
+                }
+
+            if ( storedTheme === 'dark' ) {
+                $('html').attr('data-bs-theme', 'dark');
+                }
+
+            function toggleDarkMode() {
+                var currentTheme = $('html').attr('data-bs-theme');
+
+                if (currentTheme === 'dark') {
+                    $('html').removeAttr('data-bs-theme');
+                    localStorage.setItem('theme','light');
+                    }
+                else {
+                    $('html').attr('data-bs-theme', 'dark');
+                    localStorage.setItem('theme','dark');
+                    }
+                }
+
+		</script>
+		<link rel="stylesheet" href="bootstrap.min.css" />
+        <link rel="stylesheet" href="fontawesome.css">
+		<style>
+            /*!
+             * Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com
+             * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+             * Copyright 2024 Fonticons, Inc.
+             */
+            :root, :host {
+                --fa-style-family-classic: 'Font Awesome 6 Free';
+                --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free';
+                }
+
+            @font-face {
+                font-family: 'Font Awesome 6 Free';
+                font-style: normal;
+                font-weight: 900;
+                font-display: block;
+                src: url("webfonts/fa-solid-900.woff2") format("woff2"), url("webfonts/fa-solid-900.ttf") format("truetype");
+                }
+
+            .fas,
+            .fa-solid {
+                font-weight: 900;
+                }
+
+            body {
+				touch-action: manipulation;
+				}
+			
+			label {
+				font-weight: bold;
+				margin-top: 1rem;
+				}
+			
+			.hidden  {
+				display:none !important;
+				}
+
+			.form-label {
+				margin-bottom: 0.1rem;
+				}
+			
+			.form-check label {
+				font-weight: normal;
+				margin-top: auto;
+				}
+			
+			.btn-huge {
+				--bs-btn-padding-y: 5rem;
+				--bs-btn-padding-x: 5rem;
+				--bs-btn-font-size: 7.5rem;
+				}
+			
+			/* Styles for modal footer buttons to create three columns of two buttons */
+			#history-qrcode-modal-buttons .btn {
+				display: block;
+				width:100%;
+				margin-bottom: 10px
+				}
+
+			/* QR codes changed in 2025 to being displayed in a modal dialog instead of being embedded in the page */
+			#qrcode {
+				padding: 5%;
+				background-color: white;
+				}
+
+			/* Image components that are children of the QR code should be set too 100% width */
+			#qrcode img{
+				width:100%
+				}
+
+			.card > .col + .col{
+				border-left: 1em
+			}
+
+			/* Adding color highlights to the coral and algae input fields as subtle hint to scouts who may need it. */
+			.coral {
+				color: black;
+				background-color: rgb(240, 210, 75);
+				padding-bottom: 0.5em
+				}
+			
+			.algae {
+				background-color: rgb(77, 218, 209);
+				color:black;
+				padding-bottom: 0.5em;
+				}
+
+			[data-bs-theme=dark] .algae {
+				background-color: rgba(77, 218, 209, .8);
+				}
+
+			[data-bs-theme=dark] .coral {
+				background-color: rgba(240, 210, 75, .8);
+				}
+
+
+			:is(.algae, .coral) > label {
+				margin-top: 0.5rem
+				}
+		</style>
+	</head>
+	<body>
+		<form>
+			<div class="container">
+				<div class="row">
+					<div class="col align-items-left">
+                        <a href="javascript:toggleDarkMode();" class="btn btn-default"><i class="fa-solid fa-cloud-sun"></i></a>
+                    </div>
+
+					<div class="col text-center">
+						<p><small>Version 1.0</small></p>
+					</div>
+
+					<div class="col text-end">
+                        <li>Teams:    <i id="loaded_teams" class="fa-solid fa-xmark"></i></li>
+                        <li>Schedule: <i id="loaded_sched" class="fa-solid fa-xmark"></i></li>
+                    </div>
+				</div>
+				<!-- /.row -->
+
+				<div class="row">
+					<!-- This row is intended to hold a warning message if we could not load and parse the config data! -->
+					<p id="header_warning"></p>
+				</div>
+				<!-- /.row -->
+
+				<div class="row">
+					<!-- The first column is for the (UNEDITABLE) TBA event code and the scouts name -->
+					<div class="col">
+						<input id="input_e" type="text" name="e" value="" required="" disabled="">
+
+						<div class="col">
+							<label for="input_s" class="form-label">Your First Name</label>
+							<input type="text" class="form-control" id="input_s" required>
+							<div class="invalid-feedback">Please enter your first name.</div>
+						</div>
+					</div>
+					<!-- Next column is the robot position -->
+					<div class="col" onchange="updateMatchStart(event)">
+						<label>Robot</label>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_r1" value="r1" required>
+							<label class="form-check-label" for="input_r_r1">Red 1</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_r2" value="r2" required>
+							<label class="form-check-label" for="input_r_r2">Red 2</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_r3" value="r3" required>
+							<label class="form-check-label" for="input_r_r3">Red 3</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_b1" value="b1" required>
+							<label class="form-check-label" for="input_r_b1">Blue 1</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_b2" value="b2" required>
+							<label class="form-check-label" for="input_r_b2">Blue 2</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="Robot-input" id="input_r_b3" value="b3" required>
+							<label class="form-check-label" for="input_r_b3">Blue 3</label>
+						</div>
+					</div>
+					<!-- Next up is the match number that gets twiddled by the scripts OR can be edited maually and the team number -->
+					<div class="col" onchange="updateMatchStart(event)">
+						<label for="input_m" class="form-label">Match</label>
+						<input type="number" class="form-control" id="input_m" min="1" max="150" required>
+						<div class="invalid-feedback">Please specify a match number.</div>
+						
+						<!-- The team field MUST NOT be disabled or it wont validate even though its set and so no QR code will generate! -->
+						<label for="input_t" class="form-label">Team Number</label>
+						<input type="number" class="form-control" id="input_t" min="1" required>
+						<div class="invalid-feedback">Please set the team number.</div>
+					</div>
+				</div>
+				<!-- /.row -->
+
+                <!-- Show the team name for the scouts benefit -->
+
+				<div class="row">
+					<p id="teamname-label" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+				</div>
+				<!-- /.row -->
+
+				<hr class="mt-4 mb-1">
+
+				<!-- The NoShow checkbox -->
+				<div class="col">
+					<label class="form-check-label" for="NoShow-input">No Show</label>
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" role="switch" id="NoShow-input" onchange="updateNoShow(event)">
+					</div>	
+				</div>	
+				
+				<hr>
+
+				<!-- The card for the Autonomous scoring options.  Using a card gives the contents a border to visually group related stuff nice. -->
+				<div class="card">
+					<div class="card-body text-center">
+						<h2 class="card-title">Autonomous</h2>
+
+						<hr class="my-0">
+						<hr class="my-0">
+
+						<div class="row">
+							<!-- The Score column -->
+							<div class="col border-end pt-3 px-4">
+								<!-- The Hub row -->
+								<div class="row align-items-center">
+									<div class="col">
+										<div class="d-flex gap-2">
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),-10)">-10</a>
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),-5)">-5</a>
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),-1)">-1</a>
+										</div>
+									</div>
+									<div class="col-auto coral text-center" style="width: 120px">
+										<label for="AutoHub-input" class="form-label">Hub</label>
+										<input type="number" class="form-control text-center" id="AutoHub-input" min="0" value="0" required>
+										<div class="invalid-feedback">Please specify about how many fuel were scored in auto.</div>
+									</div>
+									<div class="col">
+										<div class="d-flex gap-2">
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),1)">+1</a>
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),5)">+5</a>
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#AutoHub-input'),10)">+10</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- The card for the Teleoperated scoring options.  Using a card gives the contents a border to visually group related stuff nice. -->
+				<div class="card mt-4">
+					<div class="card-body text-center">
+						<h2 class="card-title">Teleoperated</h2>
+
+						<hr class="my-0">
+
+						<hr class="my-0">
+						<div class="row">
+							<!-- The Score column -->
+							<div class="col border-end pt-3 px-4">
+								<!-- The Hub row -->
+								<div class="row align-items-center">
+									<div class="col">
+										<div class="d-flex gap-2">
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),-10)">-10</a>
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),-5)">-5</a>
+											<a class="btn btn-danger btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),-1)">-1</a>
+										</div>
+									</div>
+									<div class="col-auto coral text-center" style="width: 120px">
+										<label for="TeleHub-input" class="form-label">Hub</label>
+										<input type="number" class="form-control text-center" id="TeleHub-input" min="0" value="0" required>
+										<div class="invalid-feedback">Please specify about how many fuel were scored in teleop.</div>
+									</div>
+									<div class="col">
+										<div class="d-flex gap-2">
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),1)">+1</a>
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),5)">+5</a>
+											<a class="btn btn-success btn-lg flex-fill" href="javascript:changeValue($('#TeleHub-input'),10)">+10</a>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<hr class="mt-4">
+
+				<!-- Below this line are the assorted End Game lists, checkboxes, etc -->
+
+				<div class="row">
+				    <div class="col">
+				        <!-- The Relay checkbox -->
+						<label class="form-check-label" for="Relayed-input">Relayed fuel</label>
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="Relayed-input">
+						</div>	
+					</div>
+
+				    <div class="col">
+				        <!-- The Herded checkbox -->
+						<label class="form-check-label" for="Herded-input">Herded fuel</label>
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="Herded-input">
+						</div>	
+					</div>
+
+					<div class="col">
+						<!-- The Died/Disabled checkbox -->
+						<label class="form-check-label" for="Died-input">Died / Disabled / Tipped (Comments!)</label>
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="Died-input">
+						</div>	
+                    </div>	
+				</div>
+				<!-- /.row -->
+
+				<!-- Comments and QR button -->
+				<div class="row">
+					<div class="col">
+						<label class="form-label" for="Comment-input">Comment</label>
+						<textarea class="form-control" id="Comment-input" rows="6"></textarea>
+					</div>
+
+					<div class="col text-center">
+						<a href="javascript:updateQR()" class="btn btn-primary form-control" style="margin-top: 2.5rem;">Get Code</a>
+					</div>
+				</div>
+				<!-- /.row -->
+
+				<hr class="mt-4 mb-4">
+
+				<!-- An area for advanced options which can normally be ignored by most scouters-->
+				<div class="container mb-5">
+					<div class="accordion" id="formAccordion">
+						<div class="accordion-item">
+							<h2 class="accordion-header">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions" aria-expanded="false" aria-controls="advancedOptions">Advanced Options</button>
+							</h2>
+							<div id="advancedOptions" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+								<div class="accordion-body">
+									<p><strong>Do not mess with anything here unless you know what you are doing!</strong></p>
+									<hr class="mt-4 mb-4">
+									<div class="row">
+										<p class="col"><strong>View saved QR Codes</strong></p>
+										<div class="text-end col">
+											<a class="btn btn-outline-secondary" title="View QR Codes" href="javascript:historicalQRModal();">View QR codes</a>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<strong>Clear all local QR Code data</strong>
+											<ul>
+												<li>This will remove ALL of your QR Codes from this device.</li>
+												<li>Unscanned data will be lost forever.</li>
+											</ul>
+										</div>
+										<div class="col text-end align-self-center">
+											<a class="btn btn-outline-secondary" title="Delete QR Code data" href="javascript:flushQRCodes();">Delete QR code data</a>
+										</div>
+									</div>
+									<div class="row">
+										<p class="col align-self-center"><strong>The match level of the match being scouted. Defaults to quals.</strong></p>
+										<div class="col-2 text-center" onchange="updateMatchStart(event)">
+											<label for="MatchLevel-input" class="form-label">Match Level</label>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_qm" value="qm" required checked>
+												<label class="form-check-label" for="input_l_qm">Quals</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_sf" value="sf" required>
+												<label class="form-check-label" for="input_l_sf">Playoffs</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_f" value="f" required>
+												<label class="form-check-label" for="input_l_f">Finals</label>
+											</div>
+										</div>
+
+									</div>
+									<hr>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		
+				<hr class="mt-4 mb-4">
+
+			</div>
+
+		</form>
+
+		<!-- QR code viewing modal -->
+		<div class="modal" id="modal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title col" id="modal-header"></h4>
+						<p class="col text-end"><span id="unscanned-count-text">0</span> Unscanned</p>
+					</div>
+					<div class="modal-body">
+						<div id="qrcode"></div> 
+					</div>
+
+					<!-- Modal footer buttons for single popup on current QR code-->
+					<div id="current-qrcode-modal-buttons" class="modal-button-row hidden">
+						<div class="modal-footer justify-content-between">
+							<a class="btn btn-danger flex-fill" href="javascript:$('#modal').modal('hide');">Exit</a>
+							<a class="btn btn-primary set-qr-scanned-btn flex-fill" href="javascript:setQRScanned()">Scanned: <span class="fa-solid fa-square"></span></a>
+						</div>
+					</div>
+
+					<!-- Modal footer buttons for viewing historical QR codes-->
+					<div id="history-qrcode-modal-buttons" class="modal-button-row hidden">
+						<div class="modal-footer">
+							<div class="col">
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(-1, false)">Previous Unscanned</a>
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(-1,true)">Previous</a>
+							</div>
+							<div class="col">
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(1, false)">Next Unscanned</a>
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(1, true)">Next</a>
+							</div>
+							<div class="col">
+								<a class="btn btn-primary set-qr-scanned-btn flex-fill" href="javascript:setQRScanned();">Scanned: <span class="fa-solid fa-square"></span></a>
+								<a class="btn btn-danger flex-fill" data-bs-dismiss="modal">Exit</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			/**
+			* Update a value of a control on the form by the specified ammount
+			*
+			* @param {ctl}  The name of the DOM element to change the value of (e.g. "#AutoSpeaker-input" to update the speaker scoring in autonomous)
+			* @param {val}	The value to update the element by (typically 1 or -1)
+			*/
+			function changeValue( ctl, val ) {
+				ctl.val( isNaN( parseInt( ctl.val() ) ) ? 1 : parseInt( ctl.val() ) + val );
+				// We do NOT allow negative values!
+				if ( ctl.val() < 0 ) {
+					ctl.val( "0" );
+					}
+				}
+
+			/**
+			* Update a value of a control on the form by the specified ammount up to a limit
+			*
+			* @param {ctl}  The name of the DOM element to change the value of (e.g. "#AutoSpeaker-input" to update the speaker scoring in autonomous)
+			* @param {val}	The value to update the element by (typically 1 or -1)
+			* @param {lim}	The limiting (aka maximum) value the element can have
+			*/
+		  function changeValueWithLimit( ctl, val, lim ) {
+				ctl.val( isNaN( parseInt( ctl.val() ) ) ? 1 : parseInt( ctl.val() ) + val );
+				// We do NOT allow negative values!
+				if ( ctl.val() < 0 ) {
+					ctl.val( "0" );
+				}
+                // We do NOT allow values over the callers limit!
+                if ( ctl.val() > lim ) {
+					ctl.val( lim );
+                }
+				}
+
+			/**
+			* Update/Generate the QR code with the data from the form.  If any required items have no values then
+			* NO QR code will be generated.
+			*/
+			function updateQR() {
+				if ($("#Died-input").is(":checked") && $("#Comment-input").val().length < 15) {
+					alert("You must enter a brief explanation about why or how the robot died/disabled/tipped.");
+					return;
+				}
+
+				// Make sure Bootstrap has verified all required items that have requirement checks on them!
+				$("body").addClass( "was-validated" );
+
+				// Clear the QR's previous contents
+				$("#qrcode").html("");
+
+				// TODO: Add a length check on comment input.  If its too large, don't generate the QR code.
+				
+				// Make sure we have a team number, match number, scouter initials and that all radio button inputs
+				// have values before we try to make the QR code!  For 2026, we have no radio buttons so we
+                // have no check like: $("input[Name='TeleClimb-input']:valid").length > 0 
+				if ( $("#input_t:valid").length > 0 &&
+					 $("#input_m:valid").length > 0 &&
+					 $("#input_s:valid").length > 0
+					 ) {
+					var data =
+					"{" +
+					'"key":'      + JSON.stringify(Number($("#input_t").val())) +
+					',"cl":'      + JSON.stringify(getLevel()) +
+					',"mn":'      + JSON.stringify(Number($("#input_m").val())) +
+					',"i":'       + JSON.stringify($("#input_s").val().trim()) +
+					',"a1":'      + JSON.stringify(Number($("#AutoHub-input").val())) +
+					',"a2":0'     +
+					',"t1":'      + JSON.stringify(Number($("#TeleHub-input").val())) +
+					',"t2":0'     +
+					',"ns":'      + JSON.stringify(Number($("#NoShow-input").is(":checked"))) +
+					',"r":'       + JSON.stringify(Number($("#Relayed-input").is(":checked"))) +
+					',"h":'       + JSON.stringify(Number($("#Herded-input").is(":checked"))) +
+					',"d":'       + JSON.stringify(Number($("#Died-input").is(":checked"))) +
+					',"co":'      + JSON.stringify($("#Comment-input").val()) +
+					"}";
+					
+					var headerText = `${levelKeyToString(getLevel())} ${$("#input_m").val()} - ${$("#input_t").val()}`;
+					
+					const entry = {
+						"data": data,
+						"header": headerText,
+						"scanned": false,
+					};
+					const len = parseInt(localStorage.getItem($("#input_e").val() + "length"))
+					localStorage.setItem($("#input_e").val() + len, JSON.stringify(entry));
+					localStorage.setItem($("#input_e").val() + "length", len + 1)
+					localStorage.setItem($("#input_e").val() + "unscanned", parseInt(localStorage.getItem($("#input_e").val() + "unscanned")) + 1);
+					
+					openModal(entry, len, 0);
+					}
+				}
+
+			/*
+			qrData: An object with the QR code data string (data), the dialog header (headerText) and a QR code scanned status (scanned)
+			type: The modal type, determining what buttons are displayed. 0 = the current QR code, 1 - unscanned QR code history, 2 - all QR code history
+			qrIndex: The index of the currently selected entry in the list of entries under an event code
+			*/
+			function openModal (qrData, qrIndex, type) {
+				// Reset the modal
+				$("#qrcode").html("");
+
+				// Set up the modal for the QR
+				new QRCode( document.getElementById( "qrcode" ), { text: qrData["data"], width: 480, height: 480, correctLevel:QRCode.CorrectLevel.L} );
+				$("#modal-header").text(qrData["header"]);
+				$("#modal").attr("data-selected-entry-index", qrIndex);
+				updateUnscannedText()
+				
+				if (qrData["scanned"]) {
+					$(".set-qr-scanned-btn")
+						.addClass("btn-success")
+						.removeClass("btn-primary")
+					$(".set-qr-scanned-btn > span")
+						.addClass("fa-square-check")
+						.removeClass("fa-square")
+				} else {
+					$(".set-qr-scanned-btn")
+						.addClass("btn-primary")
+						.removeClass("btn-success")
+					$(".set-qr-scanned-btn > span")
+						.removeClass("fa-square-check")
+						.addClass("fa-square")
+
+				}
+				
+				switch (type) {
+					case 0: 
+						$("#current-qrcode-modal-buttons").removeClass("hidden");
+						$("#history-qrcode-modal-buttons").addClass("hidden");
+						break;
+					case 1:
+						$("#current-qrcode-modal-buttons").addClass("hidden");
+						$("#history-qrcode-modal-buttons").removeClass("hidden");
+						break;
+				}
+
+				$("#modal").modal("show");
+			}
+
+			// Returns next or previous QR code
+			// direction is 1 or -1 for next or previous 
+			// includeScanned is true when navigating all QR codes, false when only navigating unscanned QR codes, true when navigating all QR codes
+			function navigateQRModal (direction, includeScanned) {
+				// Gets the current length of QR codes for the event
+				const len = parseInt(localStorage.getItem($("#input_e").val() + "length"))
+
+				// Get the "old" QR code selection for the modal and use it to find the new index
+				const oldIndex = parseInt($("#modal").attr("data-selected-entry-index"));
+
+				var newIndex = oldIndex;
+				while (true) {
+					newIndex += direction
+					console.log(oldIndex, newIndex, len)
+					// If the new index is out of range, break out of the loop
+					if (newIndex < 0 || newIndex >= len) {
+						break;
+					}
+
+					const newItem = JSON.parse(localStorage.getItem($("#input_e").val() + newIndex));
+					
+					// If unscanned navigation, skip items that have been scanned
+					if (newItem.scanned && !includeScanned) {
+						continue;
+					}
+
+					// If the previous checks passed, open the modal
+					openModal(newItem, newIndex, 1);
+					break;
+				}
+			}
+
+			// Sets the QR designated with key as scanned
+			function setQRScanned () {
+				const index = parseInt($("#modal").attr("data-selected-entry-index"));
+				var entry = JSON.parse(localStorage.getItem($("#input_e").val() + index))
+				const previouslyScanned = entry.scanned;
+				
+				const unscannedCount = parseInt(localStorage.getItem($("#input_e").val() + "unscanned"))
+
+				// Change the display of the scanned toggle
+				if (previouslyScanned) {
+					$(".set-qr-scanned-btn")
+						.addClass("btn-primary")
+						.removeClass("btn-success")
+					$(".set-qr-scanned-btn > span")
+						.removeClass("fa-square-check")
+						.addClass("fa-square")
+				} else {
+					$(".set-qr-scanned-btn")
+						.addClass("btn-success")
+						.removeClass("btn-primary")
+					$(".set-qr-scanned-btn > span")
+						.addClass("fa-square-check")
+						.removeClass("fa-square")
+				}
+
+				// Increment/decrement the unscanned count stored in local storage
+				localStorage.setItem($("#input_e").val() + "unscanned", unscannedCount + (previouslyScanned ? 1 : -1))
+				updateUnscannedText()
+
+				// Toggle the scanned boolean
+				entry.scanned = !previouslyScanned;
+				localStorage.setItem($("#input_e").val() + index, JSON.stringify(entry));
+			}
+
+			// Opens modal showing past QR codes that can be navigated
+			// includeScanned determines which modal is opened - one for scanning unscanned codes or one for viewing all past codes
+			function historicalQRModal () {
+				if (parseInt(localStorage.getItem($("#input_e").val() + "length")) < 1) {
+					alert("No QR codes to display for this event.");
+					return;
+				}
+
+				const firstQR = JSON.parse(localStorage.getItem($("#input_e").val() + "0"));
+
+				openModal(firstQR, 0, 1);
+			}
+
+			function flushQRCodes () {
+				if (!confirm("Are you SURE you want to reset all QR codes for this event?")) {
+					return;
+				}
+
+				const len = parseInt(localStorage.getItem($("#input_e").val() + "length"));
+				for (i = 0; i < len; i++) {
+					localStorage.removeItem($("#input_e").val() + i);
+				}
+
+				localStorage.setItem($("#input_e").val() + "length", 0);
+			}
+
+			function updateUnscannedText () {
+				const unscannedCount = localStorage.getItem($("#input_e").val() + "unscanned")
+				$("#unscanned-count-text").text(unscannedCount) 
+			}
+
+			// If the initial QR code popup modal is closed by clicking outside of it, 
+			$('#modal').on('hidden.bs.modal', function (e) {
+				if (!$('#current-qrcode-modal-buttons').hasClass('hidden')) {
+					resetFormForNextMatch()
+				}
+			})
+
+		</script>
+	</body>
+</html>						

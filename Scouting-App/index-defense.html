@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Degrees of Freedom Scouting</title>
+		<script src="jquery-3.6.1.min.js"></script>
+		<script src="qrcode.min.js"></script>
+		<script src="bootstrap.min.js"></script>
+		<link src="bootstrap.min.js.map"></link>
+		<link rel="stylesheet" href="bootstrap.min.css" />
+        <link rel="stylesheet" href="fontawesome.css">
+		<script src="config.js"></script>
+		<script src="TBAInterface.js"></script>
+		<script src="DoFDefenseScouting.js"></script>
+		<script>
+            // Prevent an accidental page refresh or Back from forcing an unwanted page reload.
+			const onConfirmRefresh = function ( event ) {
+				event.preventDefault();
+				return event.returnValue = "Are you sure you want to leave the page?";
+			}
+			
+		    window.addEventListener( "beforeunload", onConfirmRefresh, { capture: true } );
+
+            // Add a light/dark mode for the page along with a toggle function.  This required a newer Bootstrap and adding use of
+            // Font Awesome files to get the toggle button icon we will use.
+
+            var storedTheme = localStorage.getItem( 'deftheme' );
+
+            if ( storedTheme == null || storedTheme.length == 0 ) {
+                // No theme stored so use the browsers setting
+                if ( window.matchMedia && window.matchMedia( '(prefers-color-scheme: dark)' ).matches ) {
+                    $('html').attr('data-bs-theme', 'dark');
+                    localStorage.setItem( 'deftheme', 'dark' );
+                    storedTheme = 'dark';
+                    }
+                else {
+                    localStorage.setItem( 'deftheme', 'light' );
+                    storedTheme = 'light';
+                    }
+                }
+
+            if ( storedTheme === 'dark' ) {
+                $('html').attr('data-bs-theme', 'dark');
+                }
+
+            function toggleDarkMode() {
+                var currentTheme = $('html').attr('data-bs-theme');
+
+                if (currentTheme === 'dark') {
+                    $('html').removeAttr('data-bs-theme');
+                    localStorage.setItem('deftheme','light');
+                    }
+                else {
+                    $('html').attr('data-bs-theme', 'dark');
+                    localStorage.setItem('deftheme','dark');
+                    }
+                }
+		</script>
+		<style>
+            :root, :host {
+                --fa-style-family-classic: 'Font Awesome 6 Free';
+                --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free';
+                }
+
+            @font-face {
+                font-family: 'Font Awesome 6 Free';
+                font-style: normal;
+                font-weight: 900;
+                font-display: block;
+                src: url("webfonts/fa-solid-900.woff2") format("woff2"), url("webfonts/fa-solid-900.ttf") format("truetype");
+                }
+
+            .fas,
+            .fa-solid {
+                font-weight: 900;
+                }
+
+            body {
+				touch-action: manipulation;
+				}
+			
+			label {
+				font-weight: bold;
+				margin-top: 1rem;
+				}
+			
+			.hidden  {
+				display:none !important;
+				}
+
+			.form-label {
+				margin-bottom: 0.1rem;
+				}
+			
+			.form-check label {
+				font-weight: normal;
+				margin-top: auto;
+				}
+			
+			.btn-huge {
+				--bs-btn-padding-y: 5rem;
+				--bs-btn-padding-x: 5rem;
+				--bs-btn-font-size: 7.5rem;
+				}
+			
+			/* Styles for modal footer buttons to create three columns of two buttons */
+			#history-qrcode-modal-buttons .btn {
+				display: block;
+				width:100%;
+				margin-bottom: 10px
+				}
+
+			/* QR codes changed are displayed in a modal dialog instead of being embedded in the page */
+			#qrcode {
+				padding: 5%;
+				background-color: white;
+				}
+
+			/* Image components that are children of the QR code should be set too 100% width */
+			#qrcode img{
+				width: 100%;
+				}
+
+			.card > .col + .col{
+				border-left: 1em
+			}
+
+            .red {
+                background-color: rgba(240, 0, 0, 0.5)
+            }
+
+            .blue {
+                background-color: rgba(0,0,240,0.5)
+            }
+		</style>
+	</head>
+	<body>
+		<form>
+			<div class="container">
+			    <div class="row">
+                    <!-- This row holds our light/dark mode toggle and the team & schedule load status icons -->
+					<div class="col align-items-left">
+                        <a href="javascript:toggleDarkMode();" class="btn btn-default"><i class="fa-solid fa-cloud-sun"></i></a>
+                    </div>
+
+					<div class="col text-center">
+						<p><small>Version 1</small></p>
+					</div>
+
+					<div class="col text-end">
+                        <li>Teams:    <i id="loaded_teams" class="fa-solid fa-xmark"></i></li>
+                        <li>Schedule: <i id="loaded_sched" class="fa-solid fa-xmark"></i></li>
+                    </div>
+				</div>
+				<!-- /.row -->
+
+				<div class="row">
+					<!-- This row is intended to hold a warning message if we could not load and parse the config data! -->
+					<p id="header_warning"></p>
+				</div>
+				<!-- /.row -->
+
+				<div class="row">
+					<!-- Start with the TBA event code and the defense scouts name -->
+					<div class="col">
+						<input id="input_e" type="text" name="e" value="" required="" disabled="">
+
+						<input id="input_ed" type="text" name="ed" value="" required="" disabled="">
+
+						<div class="col">
+							<label for="input_s" class="form-label">Your First Name</label>
+							<input type="text" class="form-control" id="input_s" required>
+							<div class="invalid-feedback">Please enter your first name.</div>
+						</div>
+					</div>
+
+					<!-- Next is the match number that gets twiddled by the scripts OR can be edited maually -->
+					<div class="col" onchange="updateMatchStart(event)">
+						<label for="input_m" class="form-label">Match</label>
+						<input type="number" class="form-control" id="input_m" min="1" max="150" required>
+						<div class="invalid-feedback">Please specify a match number.</div>
+					</div>
+				</div>
+				<!-- /.row -->
+
+				<hr class="mt-4">
+
+				<!-- Below this line are the END GAME lists and checkboxes -->
+
+				<div class="row">
+					<!-- Red alliance selector -->
+					<div class="col red">
+					    <!-- Red 1 -->
+                        <p id="r1teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<!--<div class="row">
+					        <p id="r1teamname-label" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+				        </div> -->
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R1-input" id="R1-0" value="0" checked required>
+							<label class="form-check-label" for="R1-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R1-input" id="R1-1" value="1" required>
+							<label class="form-check-label" for="R1-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R1-input" id="R1-2" value="2" required>
+							<label class="form-check-label" for="R1-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R1-input" id="R1-3" value="3" required>
+							<label class="form-check-label" for="R1-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R1-input" id="R1-4" value="4" required>
+							<label class="form-check-label" for="R1-4">Very Effective</label>
+						</div>
+
+					    <!-- Red 2 -->
+						<p id="r2teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R2-input" id="R2-0" value="0" checked required>
+							<label class="form-check-label" for="R2-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R2-input" id="R2-1" value="1" required>
+							<label class="form-check-label" for="R2-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R2-input" id="R2-2" value="2" required>
+							<label class="form-check-label" for="R2-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R2-input" id="R2-3" value="3" required>
+							<label class="form-check-label" for="R2-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R2-input" id="R2-4" value="4" required>
+							<label class="form-check-label" for="R2-4">Very Effective</label>
+						</div>
+
+					    <!-- Red 3 -->
+						<p id="r3teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R3-input" id="R3-0" value="0" checked required>
+							<label class="form-check-label" for="R3-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R3-input" id="R3-1" value="1" required>
+							<label class="form-check-label" for="R3-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R3-input" id="R3-2" value="2" required>
+							<label class="form-check-label" for="R3-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R3-input" id="R3-3" value="3" required>
+							<label class="form-check-label" for="R3-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="R3-input" id="R3-4" value="4" required>
+							<label class="form-check-label" for="R3-4">Very Effective</label>
+						</div>
+					</div>
+					
+					<!-- Blue alliance selector -->
+			        <div class="col blue">
+					    <!-- Blue 1 -->
+						<p id="b1teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B1-input" id="B1-0" value="0" checked required>
+							<label class="form-check-label" for="B1-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B1-input" id="B1-1" value="1" required>
+							<label class="form-check-label" for="B1-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B1-input" id="B1-2" value="2" required>
+							<label class="form-check-label" for="B1-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B1-input" id="B1-3" value="3" required>
+							<label class="form-check-label" for="B1-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B1-input" id="B1-4" value="4" required>
+							<label class="form-check-label" for="B1-4">Very Effective</label>
+						</div>
+
+					    <!-- Blue 2 -->
+						<p id="b2teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B2-input" id="B2-0" value="0" checked required>
+							<label class="form-check-label" for="B2-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B2-input" id="B2-1" value="1" required>
+							<label class="form-check-label" for="B2-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B2-input" id="B2-2" value="2" required>
+							<label class="form-check-label" for="B2-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B2-input" id="B2-3" value="3" required>
+							<label class="form-check-label" for="B2-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B2-input" id="B2-4" value="4" required>
+							<label class="form-check-label" for="B2-4">Very Effective</label>
+						</div>
+
+					    <!-- Blue 3 -->
+						<p id="b3teamnum" style="text-align: center; font-size: 160%; font-weight: bold;"></p>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B3-input" id="B3-0" value="0" checked required>
+							<label class="form-check-label" for="B3-0">Did not attempt</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B3-input" id="B3-1" value="1" required>
+							<label class="form-check-label" for="B3-1">Ineffective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B3-input" id="B3-2" value="2" required>
+							<label class="form-check-label" for="B3-2">Semi-effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B3-input" id="B3-3" value="3" required>
+							<label class="form-check-label" for="B3-3">Effective</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="B3-input" id="B3-4" value="4" required>
+							<label class="form-check-label" for="B3-4">Very Effective</label>
+						</div>
+					</div>
+				</div>
+				<!-- /.row -->
+
+				<!-- Comments and QR button -->
+				<div class="row">
+					<!-- <div class="col">
+						<label class="form-label" for="Comment-input">Comment</label>
+						<textarea class="form-control" id="Comment-input" rows="6"></textarea>
+					</div> -->
+
+					<div class="col text-center">
+						<a href="javascript:updateQR()" class="btn btn-primary form-control" style="margin-top: 2.5rem;">Get Code</a>
+					</div>
+				</div>
+				<!-- /.row -->
+
+				<hr class="mt-4 mb-4">
+
+				<!-- An area for advanced options which can normally be ignored by most scouters-->
+				<div class="container mb-5">
+					<div class="accordion" id="formAccordion">
+						<div class="accordion-item">
+							<h2 class="accordion-header">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions" aria-expanded="false" aria-controls="advancedOptions">Advanced Options</button>
+							</h2>
+							<div id="advancedOptions" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+								<div class="accordion-body">
+									<p><strong>Do not mess with anything here unless you know what you are doing!</strong></p>
+									<hr class="mt-4 mb-4">
+									<div class="row">
+										<p class="col"><strong>View saved QR Codes</strong></p>
+										<div class="text-end col">
+											<a class="btn btn-outline-secondary" title="View QR Codes" href="javascript:historicalQRModal();">View QR codes</a>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<strong>Clear all local QR Code data</strong>
+											<ul>
+												<li>This will remove ALL of your QR Codes from this device.</li>
+												<li>Unscanned data will be lost forever.</li>
+											</ul>
+										</div>
+										<div class="col text-end align-self-center">
+											<a class="btn btn-outline-secondary" title="Delete QR Code data" href="javascript:flushQRCodes();">Delete QR code data</a>
+										</div>
+									</div>
+									<div class="row">
+										<p class="col align-self-center"><strong>The match level of the match being scouted. Defaults to quals.</strong></p>
+										<div class="col-2 text-center" onchange="updateMatchStart(event)">
+											<label for="MatchLevel-input" class="form-label">Match Level</label>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_qm" value="qm" required checked>
+												<label class="form-check-label" for="input_l_qm">Quals</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_sf" value="sf" required>
+												<label class="form-check-label" for="input_l_sf">Playoffs</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="MatchLevel-input" id="input_l_f" value="f" required>
+												<label class="form-check-label" for="input_l_f">Finals</label>
+											</div>
+										</div>
+
+									</div>
+									<hr>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+		
+				<hr class="mt-4 mb-4">
+
+			</div>
+
+		</form>
+
+		<!-- QR code viewing modal -->
+		<div class="modal" id="modal">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title col" id="modal-header"></h4>
+						<p class="col text-end"><span id="unscanned-count-text">0</span> Unscanned</p>
+					</div>
+					<div class="modal-body">
+						<div id="qrcode"></div> 
+					</div>
+
+					<!-- Modal footer buttons for single popup on current QR code-->
+					<div id="current-qrcode-modal-buttons" class="modal-button-row hidden">
+						<div class="modal-footer justify-content-between">
+							<a class="btn btn-danger flex-fill" href="javascript:$('#modal').modal('hide');">Exit</a>
+							<a class="btn btn-primary set-qr-scanned-btn flex-fill" href="javascript:setQRScanned()">Scanned: <span class="fa-solid fa-square"></span></a>
+						</div>
+					</div>
+
+					<!-- Modal footer buttons for viewing historical QR codes-->
+					<div id="history-qrcode-modal-buttons" class="modal-button-row hidden">
+						<div class="modal-footer">
+							<div class="col">
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(-1, false)">Previous Unscanned</a>
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(-1,true)">Previous</a>
+							</div>
+							<div class="col">
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(1, false)">Next Unscanned</a>
+								<a class="btn btn-secondary flex-fill" href="javascript:navigateQRModal(1, true)">Next</a>
+							</div>
+							<div class="col">
+								<a class="btn btn-primary set-qr-scanned-btn flex-fill" href="javascript:setQRScanned();">Scanned: <span class="fa-solid fa-square"></span></a>
+								<a class="btn btn-danger flex-fill" data-bs-dismiss="modal">Exit</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+          /**
+          * Update/Generate the QR code with the data from the form.  If any required items have no values then
+          * NO QR code will be generated.
+          */
+          function updateQR() {
+	          // Make sure Bootstrap has verified all required items that have requirement checks on them!
+	          $("body").addClass( "was-validated" );
+
+	          // Clear the QR's previous contents
+	          $("#qrcode").html("");
+
+	          // Make sure we have a match number, scouter name and that ALL radio button inputs
+	          // have values before we try to make the QR code!
+	          if ( $("#input_m:valid").length > 0 &&
+		           $("#input_s:valid").length > 0 &&
+		           $("input[Name='R1-input']:valid").length > 0 &&
+		           $("input[Name='R2-input']:valid").length > 0 &&
+		           $("input[Name='R3-input']:valid").length > 0 &&
+		           $("input[Name='B1-input']:valid").length > 0 &&
+		           $("input[Name='B2-input']:valid").length > 0 &&
+		           $("input[Name='B3-input']:valid").length > 0
+	             ) {
+		          var data =
+		              "{" +
+					  '"cl":'  + JSON.stringify(getLevel()) +
+		              ',"mn":' + JSON.stringify(Number($("#input_m").val())) +
+		              ',"i":'  + JSON.stringify($("#input_s").val().trim()) +
+		              ',"r1":' + JSON.stringify(Number($("input[name='R1-input']:checked").val())) +
+		              ',"r2":' + JSON.stringify(Number($("input[name='R2-input']:checked").val())) +
+		              ',"r3":' + JSON.stringify(Number($("input[name='R3-input']:checked").val())) +
+		              ',"r4":' + JSON.stringify(Number($("#r1teamnum").text())) +
+		              ',"r5":' + JSON.stringify(Number($("#r2teamnum").text())) +
+		              ',"r6":' + JSON.stringify(Number($("#r3teamnum").text())) +
+		              ',"b1":' + JSON.stringify(Number($("input[name='B1-input']:checked").val())) +
+		              ',"b2":' + JSON.stringify(Number($("input[name='B2-input']:checked").val())) +
+		              ',"b3":' + JSON.stringify(Number($("input[name='B3-input']:checked").val())) +
+		              ',"b4":' + JSON.stringify(Number($("#b1teamnum").text())) +
+		              ',"b5":' + JSON.stringify(Number($("#b2teamnum").text())) +
+		              ',"b6":' + JSON.stringify(Number($("#b3teamnum").text())) +
+		              "}";
+		          
+		          var headerText = `Match ${levelKeyToString(getLevel())} ${$("#input_m").val()}`;
+		          
+		          const entry = {
+		              "data": data,
+		              "header": headerText,
+		              "scanned": false,
+		          };
+
+                  // Use a slightly different localStorage key than our regular app to avoid overwriting live data
+                  // The regular app uses event code in input_e as the root.
+                  // The defense only app uses event code in input_ed as the root.
+		          const len = parseInt(localStorage.getItem($("#input_ed").val() + "length"))
+		          localStorage.setItem($("#input_ed").val() + len, JSON.stringify(entry));
+		          localStorage.setItem($("#input_ed").val() + "length", len + 1)
+		          localStorage.setItem($("#input_ed").val() + "unscanned", parseInt(localStorage.getItem($("#input_ed").val() + "unscanned")) + 1);
+		          
+		          openModal(entry, len, 0);
+	          }
+          }
+
+          /*
+            qrData: An object with the QR code data string (data), the dialog header (headerText) and a QR code scanned status (scanned)
+            type: The modal type, determining what buttons are displayed. 0 = the current QR code, 1 - unscanned QR code history, 2 - all QR code history
+            qrIndex: The index of the currently selected entry in the list of entries under an event code
+          */
+          function openModal (qrData, qrIndex, type) {
+	          // Reset the modal
+	          $("#qrcode").html("");
+
+	          // Set up the modal for the QR
+	          new QRCode( document.getElementById( "qrcode" ), { text: qrData["data"], width: 480, height: 480, correctLevel:QRCode.CorrectLevel.L} );
+	          $("#modal-header").text(qrData["header"]);
+	          $("#modal").attr("data-selected-entry-index", qrIndex);
+	          updateUnscannedText()
+	          
+	          if (qrData["scanned"]) {
+		          $(".set-qr-scanned-btn").addClass("btn-success").removeClass("btn-primary")
+		          $(".set-qr-scanned-btn > span").addClass("fa-square-check").removeClass("fa-square")
+	          }
+              else {
+		          $(".set-qr-scanned-btn").addClass("btn-primary").removeClass("btn-success")
+		          $(".set-qr-scanned-btn > span").removeClass("fa-square-check").addClass("fa-square")
+	          }
+	          
+	          switch (type) {
+	          case 0: 
+		          $("#current-qrcode-modal-buttons").removeClass("hidden");
+		          $("#history-qrcode-modal-buttons").addClass("hidden");
+		          break;
+	          case 1:
+		          $("#current-qrcode-modal-buttons").addClass("hidden");
+		          $("#history-qrcode-modal-buttons").removeClass("hidden");
+		          break;
+	          }
+
+	          $("#modal").modal("show");
+          }
+
+          // Returns next or previous QR code
+          // direction is 1 or -1 for next or previous 
+          // includeScanned is true when navigating all QR codes, false when only navigating unscanned QR codes, true when navigating all QR codes
+          function navigateQRModal (direction, includeScanned) {
+	          // Gets the current length of QR codes for the event
+	          const len = parseInt(localStorage.getItem($("#input_ed").val() + "length"))
+
+	          // Get the "old" QR code selection for the modal and use it to find the new index
+	          const oldIndex = parseInt($("#modal").attr("data-selected-entry-index"));
+
+	          var newIndex = oldIndex;
+	          while (true) {
+		          newIndex += direction
+		          console.log(oldIndex, newIndex, len)
+		          // If the new index is out of range, break out of the loop
+		          if (newIndex < 0 || newIndex >= len) {
+			          break;
+		          }
+
+		          const newItem = JSON.parse(localStorage.getItem($("#input_ed").val() + newIndex));
+		          
+		          // If unscanned navigation, skip items that have been scanned
+		          if (newItem.scanned && !includeScanned) {
+			          continue;
+		          }
+
+		          // If the previous checks passed, open the modal
+		          openModal(newItem, newIndex, 1);
+		          break;
+	          }
+          }
+
+
+          // Sets the QR designated with key as scanned
+          function setQRScanned () {
+	          const index = parseInt($("#modal").attr("data-selected-entry-index"));
+	          var entry = JSON.parse(localStorage.getItem($("#input_ed").val() + index))
+	          const previouslyScanned = entry.scanned;
+	          
+	          const unscannedCount = parseInt(localStorage.getItem($("#input_ed").val() + "unscanned"))
+
+	          // Change the display of the scanned toggle
+	          if (previouslyScanned) {
+		          $(".set-qr-scanned-btn").addClass("btn-primary").removeClass("btn-success")
+		          $(".set-qr-scanned-btn > span").removeClass("fa-square-check").addClass("fa-square")
+	          }
+              else {
+		          $(".set-qr-scanned-btn").addClass("btn-success").removeClass("btn-primary")
+		          $(".set-qr-scanned-btn > span").addClass("fa-square-check").removeClass("fa-square")
+	          }
+
+	          // Increment/decrement the unscanned count stored in local storage
+	          localStorage.setItem($("#input_ed").val() + "unscanned", unscannedCount + (previouslyScanned ? 1 : -1))
+	          updateUnscannedText()
+
+	          // Toggle the scanned boolean
+	          entry.scanned = !previouslyScanned;
+	          localStorage.setItem($("#input_ed").val() + index, JSON.stringify(entry));
+          }
+
+
+          // Opens modal showing past QR codes that can be navigated
+          // includeScanned determines which modal is opened - one for scanning unscanned codes or one for viewing all past codes
+          function historicalQRModal () {
+	          if (parseInt(localStorage.getItem($("#input_ed").val() + "length")) < 1) {
+		          alert("No QR codes to display for this event.");
+		          return;
+	          }
+
+	          const firstQR = JSON.parse(localStorage.getItem($("#input_ed").val() + "0"));
+
+	          openModal(firstQR, 0, 1);
+          }
+
+
+          function flushQRCodes () {
+	          if (!confirm("Are you SURE you want to reset all QR codes for this event?")) {
+		          return;
+	          }
+
+	          const len = parseInt(localStorage.getItem($("#input_ed").val() + "length"));
+	          for (i = 0; i < len; i++) {
+		          localStorage.removeItem($("#input_ed").val() + i);
+	          }
+
+	          localStorage.setItem($("#input_ed").val() + "length", 0);
+          }
+
+
+          function updateUnscannedText () {
+	          const unscannedCount = localStorage.getItem($("#input_ed").val() + "unscanned")
+	          $("#unscanned-count-text").text(unscannedCount) 
+          }
+
+          // The QR code popup modal gets closed by clicking outside of it
+          $('#modal').on('hidden.bs.modal', function (e) {
+	          if (!$('#current-qrcode-modal-buttons').hasClass('hidden')) {
+		          resetFormForNextMatch()
+	          }
+          })
+		</script>
+	</body>
+</html>						

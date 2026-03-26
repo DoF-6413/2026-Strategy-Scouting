@@ -1,0 +1,4 @@
+colorama==0.4.6
+pymongo==4.6.1
+tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b
+tqdm==4.67.3

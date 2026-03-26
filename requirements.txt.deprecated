@@ -1,0 +1,11 @@
+numpy==2.0.2
+pandas==2.2.3
+plotly==5.24.1
+pymongo==4.10.1
+streamlit==1.41.1
+scipy==1.13.1
+tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b
+colorama==0.4.6
+streamlit-plotly-events==0.0.6
+tqdm==4.67.1
+pillow-heif==0.22.0

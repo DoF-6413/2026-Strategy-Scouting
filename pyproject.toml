@@ -1,0 +1,33 @@
+[project]
+name = "frc-6413-scouting"
+version = "2026.0.0"
+description = "FRC Team 6413 scouting and strategy system"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+# Common dependencies shared across packages
+common = [
+    "pymongo>=4.6.0",
+    "colorama>=0.4.6",
+    "tqdm>=4.66.0",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.9.0"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# E/W = pycodestyle, F = pyflakes, I = isort
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.uv.workspace]
+members = ["Scouting-Scripts", "Strategy-Dashboard", "Tools"]

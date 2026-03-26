@@ -1,0 +1,19 @@
+[project]
+name = "frc-6413-strategy-dashboard"
+version = "2026.0.0"
+description = "Streamlit dashboard for visualizing and analyzing scouting data"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.41.0",
+    "plotly>=5.24.0",
+    "numpy>=2.0.0",
+    "pandas>=2.2.0",
+    "scipy>=1.13.0",
+    "pymongo>=4.6.0",
+    "tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b",
+    "colorama>=0.4.6",
+    "streamlit-plotly-events>=0.0.6",
+    "tqdm>=4.66.0",
+    "pillow-heif>=0.22.0",
+    "pillow>=10.0.0",
+]

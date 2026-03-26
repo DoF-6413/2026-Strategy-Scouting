@@ -1,0 +1,20 @@
+[project]
+name = "frc-6413-scouting-scripts"
+version = "2026.0.0"
+description = "Python scripts for collecting scouting data via QR codes"
+requires-python = ">=3.11"
+dependencies = [
+    "pymongo>=4.6.0",
+    "tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b",
+    "colorama>=0.4.6",
+    "tqdm>=4.66.0",
+    "statbotics>=3.0.0",
+    "tabulate>=0.10.0",
+]
+
+[project.scripts]
+# Main scripts can be run via uv run
+scouting-match = "scouting_2025:main"
+scouting-defense = "defense_scouting_2025:main"
+scouting-training-check = "training_checking_2025:main"
+scouting-training-collect = "training_collection_2025:main"

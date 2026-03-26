@@ -1,0 +1,70 @@
+JSON key to MongoDB key mapping for quantitative data (normal scouting):
+
+key         -> teamNumber (as str)
+cl          -> compLevel
+mn          -> matchNumber
+i           -> scouter
+a1          -> autoHub
+a2          -> autoHubMiss
+t1          -> teleHub
+t2          -> teleHubMiss
+ns          -> noShow
+d           -> died
+r           -> relayed
+h           -> herded
+co          -> comments
+
+id_to_use = eventCode + "_" + matchData[ 'compLevel' ] + str( matchData[ 'matchNumber' ] ) + "_frc" + matchData[ "teamNumber" ]
+docType   = "match" (cfg.DT_SCOUTING_MATCH)
+
+JSON key to MongoDB key mapping for qualitative data (defense only scouting):
+
+key         -> teamNumber (as str)
+cl          -> compLevel
+mn          -> matchNumber
+i           -> defenseScouter
+r1 -> r1defense*  -> defense
+r2 -> r2defense*  -> defense
+r3 -> r3defense*  -> defense
+b1 -> b1defense*  -> defense
+b2 -> b2defense*  -> defense
+b3 -> b3defense*  -> defense
+
+* - Only 1 of the 6 possible values actually gets put into defense.  It all depends on if the robot was Red or Blue and 1 - 3.  
+
+Some JSON items are used to set the _id value to use on the MongoDB update/insert:
+
+r4 -> r1teamNum -> teamNum
+r5 -> r2teamNum -> teamNum
+r6 -> r3teamNum -> teamNum
+b4 -> b1teamNum -> teamNum
+b5 -> b2teamNum -> teamNum
+b6 -> b3teamNum -> teamNum
+
+The teamNum value then gets used to craft the _id value to use for updating data in MongoDB
+
+
+Field descriptions:
+
+teamNumber: The numeric team value (e.g. 6413) but AS A STRING, NOT6NUMERIC VALUE
+compLevel: The match level ("qm"=Qualifiers, "sf"=Playoffs, "f"=Finals)
+matchNum: The match number
+scouter: The (quantitative) scouters name
+defenseScouter: The (qualitative) scouters name
+
+autoHub: APPROXIMATE number of fuel scored in the Hub during autonomous
+autoHubMiss: APPROXIMATE number of fuel missing the Hub during autonomous
+
+teleHub: APPROXIMATE number of fuel scored in the Hub during teleop
+teleHubMiss: APPROXIMATE number of fuel missing the Hub during teleop
+
+defense: How well do they play defense (0=Not Shown, 1=Ineffective, 2=Somewhat effective, 3=Effective, 4=Crazy good effective)
+noShow: The robot was a "No Show" for the match (0=No, 1=Yes)
+died: The robot stopped/died/disabled/tipped during the match (0=No, 1=Yes)
+relayed: The robot relayed fuel across zones
+herded: The robot herded fuel across zones
+comments: Scouter comments
+
+card: REMOVED 2026
+climb: REMOVED 2026
+role: REMOVED 2026
