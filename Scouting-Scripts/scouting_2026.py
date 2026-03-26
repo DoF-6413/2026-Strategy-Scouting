@@ -287,7 +287,7 @@ def main() -> None:
     DoFLogger.info( f"The data log for this session is {replayFile}" )
 
     while True:
-        eventCode: str = input( "Enter the event code for the event you are scouting (or 'quit' to exit): " ).strip()
+        eventCode = input( "Enter the event code for the event you are scouting (or 'quit' to exit): " ).strip()
 
         if eventCode.lower() == "quit":
             DoFLogger.info( "The session was aborted at the event code prompt" )
