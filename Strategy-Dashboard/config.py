@@ -103,110 +103,41 @@ ROBOT_PHOTOS_FORMAT = "jpg"
 #region GAME SPECIFIC
 
 SELECTABLE_STATS = [
-    'totalGamePieces',
-    'totalCoral',
-    'totalAlgae',
-    'didClimb',
-    'totalAutoCoral',
-    'totalAutoAlgae',
-    'totalL4',
-    'totalL3',
-    'totalL2',
-    'totalL1',
-    'totalNet',
-    'totalProcessor',
-    'autoL4',
-    'autoL3',
-    'autoL2',
-    'autoL1',
+  'telehub'
+  'autohub'
+  'totalgamepieces'
+
 ]
 """List containing all standard stats selectable by stat_selector inputs. 
 
 Every value in this list should correspond to a column in the MongoDB match scouting entries
 """
 
-SELECTABLE_ACCURACY_KEYS = [
-    'totalCoralAccuracy',
-    'totalAlgaeAccuracy',
-    'totalL1Accuracy',
-    'totalL2Accuracy',
-    'totalL3Accuracy',
-    'totalL4Accuracy',
-    'totalNetAccuracy',
-    'totalAutoCoralAccuracy',
-    'totalAutoAlgaeAccuracy',
-]
+'''SELECTABLE_ACCURACY_KEYS = [
+'teleshubaccuracy'
+'autohubaccuracy'
+'totalgamepiecesaccuracy'
+]'''
 """List containing stats that are accuracies. Used for stat_selectors when we only want the user to select accuracy stats
 
 Every value in this list should correspond to a column in the MongoDB match scouting entries
 """
 
 STAT_KEY_TO_TEXT = {
-    'totalGamePieces': 'Total Game Pieces',
-    'totalCoral': 'Total Coral',
-    'totalAlgae': 'Total Algae',
-    'didClimb': 'Climb Rate',
-    'totalL4': 'L4',
-    'totalL3': 'L3',
-    'totalL2': 'L2',
-    'totalL1': 'L1',
-    'totalNet': 'Net',
-    'totalAutoCoral': 'Total Coral (Auto)',
-    'totalAutoAlgae': 'Total Algae (Auto)',
-    'totalCoralAccuracy': "Coral Accuracy",
-    'totalAlgaeAccuracy': "Algae Accuracy",
-    'totalL1Accuracy': 'L1 Accuracy',
-    'totalL2Accuracy': 'L2 Accuracy',
-    'totalL3Accuracy': 'L3 Accuracy',
-    'totalL4Accuracy': 'L4 Accuracy',
-    'totalNetAccuracy': 'Net Accuracy',
-    'totalAutoCoralAccuracy': 'Coral Accuracy (Auto)',
-    'totalAutoAlgaeAccuracy': 'Algae Accuracy (Auto)',
-    'totalProcessor': 'Processor',
-    'totalCoralMiss': 'Coral Misses',
-    'totalAlgaeMiss': 'Algae Misses',
-    'autoL4': 'L4 (Auto)',
-    'autoL3': 'L3 (Auto)',
-    'autoL2': 'L2 (Auto)',
-    'autoL1': 'L1 (Auto)',
-    'autoNet': 'net (Auto)',
-    'autoProcessor': 'Processor (Auto)',
-    'teleL4': 'L4 (Teleop)',
-    'teleL3': 'L3 (Teleop)',
-    'teleL2': 'L2 (Teleop)',
-    'teleL1': 'L1 (Teleop)',
-    'teleNet': 'Net (Teleop)',
-    'teleProcessor': 'Processor (Teleop)',
-    'climb': 'Climb',
+'telehub' : 'Teleop scored',
+'autohub':'Auto scored',
+'totalgamepieces' : 'Total scored'
 }
 """Dictionary mapping stat keys as specified in the database to human readable text"""
 
-STAT_COLOR_MAPPING = {
-    'totalGamePieces': 'black',
-    'totalCoral': 'coral',
-    'totalAlgae': 'green',
-    'totalL4': 'darkblue',
-    'totalL3': 'royalblue',
-    'totalL2': 'cornflowerblue',
-    'totalL1': 'lightblue',
-    'totalProcessor': 'greenyellow',
-    'totalNet': 'forestgreen',
-    'totalMiss': 'firebrick',
-    'totalCoralMiss': 'indianred',
-    'totalAlgaeMiss': 'olive',
-    'totalCoralAccuracy': "violet",
-    'totalAlgaeAccuracy': "purple",
-}
 """Dictionary mapping stat keys as specified in the database to colors so traces roughly align with the desired stat."""
 
 ##### CONFIGURATIONS FOR SPECIFIC PAGES #####
 
 ALL_TEAMS_TABLE_KEYS = [
-    'totalCoral',
-    'totalAlgae',
-    'didClimb',
-    'totalAutoCoral',
-    'totalAutoAlgae',
+'autohub'
+'telehub'
+'totalgamepieces'
 ]
 """List of stat keys to be used for the table on the All Teams page.
 
@@ -241,19 +172,9 @@ This value should correspond to a column in the MongoDB match scouting entries
 TEAM_SUMMARY_LINE_CHART_KEYS = {
     "Overall": [
         'totalGamePieces',
-        'totalCoral',
-        'totalAlgae',
+        'autohub',
+        'telehub',
     ],
-    "Coral": [
-        'totalL1',
-        'totalL2',
-        'totalL3',
-        'totalL4',
-    ],
-    "Algae": [
-        'totalNet',
-        'totalProcessor',
-    ]
 }
 """Dictionary holding the stat keys to display on the team summary line charts.
 
@@ -265,19 +186,9 @@ Every value in this list should correspond to a column in the MongoDB match scou
 
 TEAM_SUMMARY_TABLE_KEYS = {
     "Overall": [
-        'totalCoral',
-        'totalAlgae',
-        'didClimb',
-    ],
-    "Coral": [
-        'totalL1',
-        'totalL2',
-        'totalL3',
-        'totalL4',
-    ],
-    "Algae": [
-        'totalAlgae',
-        'totalNet',
+        'totalgamepieces',
+        'autohub',
+        'telehub'
     ],
 }
 """Dictionary holding the stat keys to display on the team summary tables.
@@ -288,24 +199,24 @@ The values in each list are the stat keys that will be rendered on each tab
 Every value in this list should correspond to a column in the MongoDB match scouting entries
 """
 
-CLIMB_KEY = "climb"
+# CLIMB_KEY = "climb"
 """The key used in the MongoDB match entries where the climb integer is stored"""
 
-CLIMB_INT_TO_TEXT = [
-    "Did not attempt",
-    "Shallow",
-    "Deep",
-    "Failed"
-]
+''' CLIMB_INT_TO_TEXT = [
+"Did not attempt",
+"Shallow",
+"Deep",
+"Failed"
+] '''
 """Holds a list of text values where every index corresponds to a value of climb int"""
 
-ROLE_KEY = "role"
+# ROLE_KEY = "role"
 """The key used in the MongoDB match entries where the role integer is stored"""
 
-ROLE_INT_TO_TEXT = [
+''' ROLE_INT_TO_TEXT = [
     "Offense",
     "Defense",
     "None"
-]
+] '''
 """Holds a list of text values where every index corresponds to a value of role int"""
 #endregion
