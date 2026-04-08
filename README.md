@@ -10,7 +10,7 @@
 
 ## Introduction
 
-The DoF scouting & strategy system consists of a web page, Python scripts and a MongoDB database.  The web page is used by scouts to collect match data at events.  Data is stored in a QR code that gets displayed on the tablet and scanned via a Bluetooth barcode scanner which is paired to a laptop running a Python script which "reinflates" the data and saves it to a local and/or remote MongoDB database.  The data in the MongoDB is visualized using the strategy dashboard written in Python using Streamlit.  It can also be used by other entities such as a Slackbot (eventually).
+The DoF scouting & strategy system consists of a web page, Python scripts and a MongoDB database (or two).  The web page is used by scouts to collect match data at events.  Data is stored in a QR code that gets displayed on the tablet and scanned via a Bluetooth barcode scanner which is paired to a laptop running a Python script which "reinflates" the data and saves it to a local and/or remote MongoDB database.  The data in the MongoDB is visualized using the strategy dashboard written in Python using Streamlit.  It can also be used by other entities such as a Slackbot (eventually).
 
 ## Environment setup
 
@@ -20,10 +20,23 @@ This repo uses **uv** to manage Python and all required packages. uv handles eve
 
 ### Quick start
 
-**Step 1: Install uv** (one-time, on each computer)
+**Step 1: Install uv** (one-time per computer)
 
-- On Windows open a Command Prompt and type **pip install uv**
-- On Mac open a Terminal and type **pip3 install uv**
+Here are 3 different ways to install uv on your computer.  The first step is to open an Admin Powershell or Command Prompt on Windows or a Terminal if on a Mac.  We will refer to whatever you opened as "the Terminal" from this point on to keep things readable.
+
+- If you already have Python installed then you can use it to install uv by typing:
+  - On Windows: **pip install uv**
+  - On Mac: **pip3 install uv**
+- If Python is not installed, you have other ways to install the standalone uv:
+    - If chocolatey is installed: **choco install uv**
+    - If chocolatey is not installed, type the following:
+      - On Windows: **powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex**
+        - This will also add uv to your system PATH so it will always be available going forward.
+      - On Mac you have 2 options:
+        -- Use Homebrew: **brew install uv**
+        -- Power user style: **curl -LsSf https://astral.sh/uv/install.sh | sh**
+
+Once you have installed uv, test it by running **uv --version**.  If you do not see any version information, you need to recheck your installation.
 
 **Step 2: Sync dependencies** (one-time per repo clone, run from the repo root)
 
@@ -35,6 +48,65 @@ That’s it — uv will download the correct Python version and all required pac
 **Note:** The BAT files in the root of the repo handle everything above for you on Windows. Simply double-click the relevant BAT file in File Explorer and it will run the correct script with all dependencies available.  Feel free to make a shortcut to them on your Desktop to easily start the scripts up.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+**Step 3: Docker Desktop & MongoDB**
+
+###Windows
+
+To run Docker Desktop on Windows your computer must must meet specific requirements, particularly regarding virtualization and the Windows Subsystem for Linux (WSL).
+
+1. Check System Requirements
+  - OS: Windows 10/11 64-bit (Home, Pro, Enterprise, or Education) version 21H2 or higher.
+  - Hardware: At least 4GB of RAM and a 64-bit processor.
+  - Virtualization: **MUST* be enabled in your computer’s BIOS/UEFI settings. You can verify this in Task Manager > Performance tab > CPU.  Look for "Virtualization: Enabled" 
+
+2. Enable Required Windows Features 
+  - Docker typically uses the WSL 2 backend for better performance so make sure you have it installed:
+    - Open the Start menu, search for **Turn Windows features on or off**, and open it.
+    - Ensure Windows Subsystem for Linux and Virtual Machine Platform are checked.
+    - Click **OK** and restart your computer if prompted.
+  - Alternatively, you can run **wsl --install** in an Admin PowerShell to set this up automatically.
+
+3. Download and Install Docker Desktop 
+  - Visit the [Docker Website](https://www.docker.com/products/docker-desktop/) and click **Download for Windows**.
+  - Run the downloaded installer.
+    - When prompted, ensure the **Use WSL 2 instead of Hyper-V** option is selected.
+  - Follow the remaining wizard instructions and click **Close** and restart once finished to complete the installation.
+
+4. Initial Setup and Verification
+  - Open Docker Desktop from the Start menu or desktop shortcut.
+  - Review and accept the Docker Subscription Service Agreement.
+  - You can sign in with a Docker ID or skip this step to go straight to the dashboard.  There is no benefit to signing in so we recommend skipping it.
+  - Open a terminal and type **docker --version**.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
+  - In the terminal type the following to ensure the engine is working: **docker run hello-world**
+    - This will download a small test image and run it in a container.  You should see a nice Hello message confirming Docker is installed and working properly.  If not, recheck your steps or check the Docker documentation on how to troubleshoot.
+
+5. Install the MongoDB image:
+  - In the terminal type: **docker pull mongo:8.0**.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
+
+**NOTE:** When you launch your first MongoDB container, make sure you configure the container to have an exposed port of 27017 or else you will not be albe to contact the server.
+
+
+###Mac
+
+Here are the steps to install Docker Desktop on Mac:
+
+1. Download the appropriate DMG installer (Apple silicon or Intel chip) from the [Docker website](https://docs.docker.com/desktop/setup/install/mac-install/).
+2. Open the file you downloaded and drag the Docker icon to the Applications folder.
+3. Open Docker from your Applications folder, accept the subscription agreement, and grant necessary permissions.
+  - Alternatively you can use HomeBrew to install it: **brew install --cask docker-desktop**
+4. Verification:
+  - Open the Terminal and run **docker --version**.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
+  - In the terminal type the following to ensure the engine is working: **docker run hello-world**
+    - This will download a small test image and run it in a container.  You should see a nice Hello message confirming Docker is installed and working properly.  If not, reche
+5. Install the MongoDB image:
+  - In the terminal type: **docker pull mongo:8.0**.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
+
+**NOTE:** When you launch your first MongoDB container, make sure you configure the container to have an exposed port of 27017 or else you will not be albe to contact the server.
+
+**NOTES:**
+Apple Silicon (M1/M2/M3): Use the Apple Silicon version for native performance.
+Rosetta 2: If asked, install Rosetta 2 for running x86_64 binaries.
 
 
 ## Credentials setup
@@ -184,7 +256,7 @@ Follow these steps to export the pre-scouting data from Google Docs whenever you
 - Open the Google Doc
 - Export the entire contents as a markdown by selecting **File** -> **Download** -> **Markdown**.
 
-Be sure you save the exported data into the **2025-Strategy-Scouting** directory. If you save it to another directory, simply move it into the **2025-Strategy-Scouting** directory before moving to the next step.
+Be sure you save the exported data into the **2026-Strategy-Scouting** directory (aka your local copy of the this repo). If you save it to another directory, simply move it into the **2026-Strategy-Scouting** directory before moving to the next step.
 
 ### Step 5: Import the data into MongoDB
 
