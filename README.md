@@ -30,7 +30,7 @@ Here are 3 different ways to install uv on your computer.  The first step is to 
 - If Python is not installed, you have other ways to install the standalone uv:
     - If chocolatey is installed: **choco install uv**
     - If chocolatey is not installed, type the following:
-      - On Windows: **powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex**
+      - On Windows: **powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"**
         - This will also add uv to your system PATH so it will always be available going forward.
       - On Mac you have 2 options:
         -- Use Homebrew: **brew install uv**
