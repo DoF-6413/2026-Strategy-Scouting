@@ -16,6 +16,13 @@ uv sync --link-mode=copy
 uv sync
 ```
 
+## Quick Reference
+
+- Always run from **repo root**
+- Use `uv run --package <package-name>` to activate the correct environment
+- After the first `uv sync`, scripts start immediately (no activation needed)
+- Common dependencies are deduplicated across packages automatically
+
 ## Running Scripts
 
 ### Scouting-Scripts
@@ -24,19 +31,20 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 
 | Script | Command |
 |--------|---------|
-| Match Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2025.py` |
-| Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/defense_scouting_2025.py` |
-| Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2025.py` |
-| Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2025.py` |
+| Match Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026.py` |
+| Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/defense_scouting_2026.py` |
+| Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2026.py` |
+| Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2026.py` |
 | Pre-scouting Template | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py` |
 | Pre-scouting Upload | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_upload.py` |
 | File to MongoDB | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/file_to_MongoDB_v1.py` |
 | Find Missing Data | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/find_missing_data.py` |
-| Schema Migration | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/2025_v7_to_v8.py` |
 
 **Or use the batch files (Windows):**
-- `Scouting Match v8 Scan.bat` - Match scouting
-- `Scouting Defense v3 Scan.bat` - Defense scouting
+- `Scouting Match Scan.bat` - Match scouting
+- `Scouting Defense Scan.bat` - Defense scouting
+
+**NOTE:** Drag and drop the BATch files to your Desktop to easily launch the scripts without needing to open a command prompt first.
 
 ### Strategy-Dashboard
 
@@ -53,13 +61,12 @@ All Tools scripts are run from the **repo root**:
 
 | Script | Command |
 |--------|---------|
-| Get Event Matches (2025) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2025_v2.py` |
+| Random Data Generator | `uv run --package frc-6413-scouting-tools python Tools/RandomData2026_v2.py` |
+| MongoDB to MongoDB | `uv run --package frc-6413-scouting-tools python Tools/MongoDB_to_MongoDB_v1.py` |
+| Get Event Matches (2026) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2026_v1.py` |
 | Get Event List of Teams | `uv run --package frc-6413-scouting-tools python Tools/get_event_list_of_teams_2025_v1.py` |
 | Get Event Teams Simple | `uv run --package frc-6413-scouting-tools python Tools/get_event_teams_simple_2025_v1.py` |
 | Get Event Schedule from MongoDB | `uv run --package frc-6413-scouting-tools python Tools/get_event_schedule_from_mongodb_2025_v1.py` |
-| MongoDB to MongoDB | `uv run --package frc-6413-scouting-tools python Tools/MongoDB_to_MongoDB_v1.py` |
-| Random Data Generator | `uv run --package frc-6413-scouting-tools python Tools/RandomData2026A.py` |
-| Get Event Matches (2022) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2022_v2.py` |
 
 ## Code Quality (Ruff)
 
@@ -77,13 +84,6 @@ Scope to a single file:
 uv run ruff check Scouting-Scripts/scouting_2026.py
 uv run ruff format Scouting-Scripts/scouting_2026.py
 ```
-
-## Quick Reference
-
-- Always run from **repo root**
-- Use `uv run --package <package-name>` to activate the correct environment
-- After the first `uv sync`, scripts start immediately (no activation needed)
-- Common dependencies are deduplicated across packages automatically
 
 ## Adding Dependencies
 
