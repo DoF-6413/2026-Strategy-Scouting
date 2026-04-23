@@ -238,7 +238,7 @@ def validate_configuration() -> None:
 
     # The SECONDARY_CONNECTION_STRING MUST exist but CAN be empty.
 
-    if not (hasattr(`creds, "SECONDARY_CONNECTION_STRING")):
+    if not (hasattr(creds, "SECONDARY_CONNECTION_STRING")):
         err_msg: str = "ERROR: SECONDARY_CONNECTION_STRING is missing!"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
