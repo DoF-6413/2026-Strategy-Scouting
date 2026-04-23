@@ -31,15 +31,14 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import tbaapiv3client
-from colorama import Fore, init
+from colorama import Fore, Style, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
 from tbaapiv3client.api import EventApi, TBAApi
 from tbaapiv3client.api_client import ApiClient
-from tbaapiv3client.configuration import Configuration
 from tbaapiv3client.rest import ApiException
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
