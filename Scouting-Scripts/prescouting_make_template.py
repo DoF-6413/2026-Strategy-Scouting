@@ -17,11 +17,11 @@
 import sys
 from typing import Any, Dict, List, Optional, Set, TextIO, Tuple
 
-from frc_6413_common import config as cfg
-from frc_6413_common import credentials as creds
 import statbotics
 import tbaapiv3client
 from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from tabulate import tabulate
 from tbaapiv3client.api import TBAApi
 from tbaapiv3client.api_client import ApiClient
