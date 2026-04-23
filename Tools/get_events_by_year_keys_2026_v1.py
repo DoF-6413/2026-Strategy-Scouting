@@ -27,20 +27,21 @@
 # scrapy environments!!
 
 import logging
-import sys
 import os
-from datetime import datetime
-from typing import Dict, List, Union, Tuple, Optional
+import sys
 import time
+from datetime import datetime
+from pprint import pprint
+from typing import Dict, List, Optional, Tuple, Union
+
 import tbaapiv3client
-from tbaapiv3client.api import TBAApi, EventApi
+from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from tbaapiv3client.api import EventApi, TBAApi
 from tbaapiv3client.api_client import ApiClient
 from tbaapiv3client.configuration import Configuration
 from tbaapiv3client.rest import ApiException
-from colorama import init, Fore, Style
 from urllib3.exceptions import MaxRetryError
-from pprint import pprint
-import config as cfg
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 

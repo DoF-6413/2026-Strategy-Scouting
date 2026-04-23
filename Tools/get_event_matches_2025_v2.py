@@ -12,22 +12,24 @@
 # scrapy environments!!
 
 import logging
-import sys
 import os
+import sys
 from datetime import datetime
-from typing import Dict, List, Union, Tuple, Optional
+from typing import Dict, List, Optional, Tuple, Union
+
+from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
+from pymongo.database import Database
+
 # import tbaapiv3client
-from tbaapiv3client.api import TBAApi, EventApi
+from tbaapiv3client.api import EventApi, TBAApi
 from tbaapiv3client.api_client import ApiClient
 from tbaapiv3client.configuration import Configuration
 from tbaapiv3client.rest import ApiException
-from pymongo.database import Database
-from pymongo.collection import Collection
-from colorama import init, Fore, Style
-from urllib3.exceptions import MaxRetryError
 from tqdm import tqdm
-import config as cfg
-import credentials as creds
+from urllib3.exceptions import MaxRetryError
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 

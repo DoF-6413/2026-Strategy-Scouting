@@ -28,18 +28,19 @@
 # scrapy environments!!
 
 import logging
-import sys
 import os
+import sys
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Optional
-from colorama import init, Fore
+from typing import Any, Dict, List, Optional, Tuple
+
 import tbaapiv3client
-from tbaapiv3client.api import TBAApi, EventApi
+from colorama import Fore, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
+from tbaapiv3client.api import EventApi, TBAApi
 from tbaapiv3client.api_client import ApiClient
 from tbaapiv3client.configuration import Configuration
 from tbaapiv3client.rest import ApiException
-import config as cfg
-import credentials as creds
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 

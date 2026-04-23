@@ -17,10 +17,11 @@
 # scrapy environments!!
 
 import sys
-import tbaapiv3client
-from tbaapiv3client.rest import ApiException
 from pprint import pprint
-import credentials as creds
+
+import tbaapiv3client
+from frc_6413_common import credentials as creds
+from tbaapiv3client.rest import ApiException
 
 # Example output:
 # (venv) D:\Workspace\TBA-python>python get_event_matches_2022_v2.py
