@@ -17,8 +17,8 @@
 import sys
 from typing import Any, Dict, List, Optional, Set, TextIO, Tuple
 
-import config as cfg
-import credentials as creds
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 import statbotics
 import tbaapiv3client
 from colorama import Fore, Style, init
@@ -388,7 +388,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Create required API configuration info
-    configuration = tbaapiv3client.Configuration( api_key={'X-TBA-Auth-Key': creds.TBAAUTHKEY} )
+    configuration = tbaapiv3client.Configuration( api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY} )
 
     # To see coloring on Win10 consoles I found I needed to have this
     # colorama call before doing any output.

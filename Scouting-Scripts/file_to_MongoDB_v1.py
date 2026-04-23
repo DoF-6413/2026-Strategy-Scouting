@@ -27,8 +27,8 @@ from colorama import init, Fore, Style
 from pymongo.database import Database
 from pymongo.collection import Collection
 from tqdm import tqdm
-import config as cfg
-import credentials as creds
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 

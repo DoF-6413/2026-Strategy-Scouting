@@ -17,8 +17,8 @@ from tbaapiv3client.rest import ApiException
 from colorama import init, Fore, Style
 from pymongo import MongoClient
 from pymongo.collection import Collection
-import credentials as creds
-import config as cfg
+from frc_6413_common import credentials as creds
+from frc_6413_common import config as cfg
 
 # Simple list holding
 comp_level_order = [

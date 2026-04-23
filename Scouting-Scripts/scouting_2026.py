@@ -24,8 +24,8 @@ import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
-import config as cfg
-import credentials as creds
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from pymongo.collection import Collection
 from pymongo.database import Database
 

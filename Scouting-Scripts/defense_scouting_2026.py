@@ -13,7 +13,7 @@ import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-import config as cfg
+from frc_6413_common import config as cfg
 from colorama import Fore, init
 from pymongo.collection import Collection
 from pymongo.database import Database

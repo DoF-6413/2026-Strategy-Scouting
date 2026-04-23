@@ -22,8 +22,8 @@ import re
 from typing import List, Dict, Any, Optional
 from pymongo import MongoClient
 from pymongo.results import DeleteResult, InsertManyResult
-import config as cfg
-import credentials as creds
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 
 
 def process_notes_file(input_file: str, event_code: str) -> Optional[List[Dict[str, Any]]]:
