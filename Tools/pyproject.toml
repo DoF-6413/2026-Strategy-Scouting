@@ -4,8 +4,12 @@ version = "2026.0.0"
 description = "Utility scripts for data generation and management"
 requires-python = ">=3.11"
 dependencies = [
+    "frc-6413-common",
     "pymongo>=4.6.0",
     "tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b",
     "colorama>=0.4.6",
     "tqdm>=4.66.0",
 ]
+
+[tool.uv.sources]
+frc-6413-common = { workspace = true }
