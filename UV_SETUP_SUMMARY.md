@@ -4,24 +4,29 @@
 
 ### New Files Created
 
-1. **Root `pyproject.toml`** - Workspace configuration
+1. **`Common/pyproject.toml`** - Shared utilities package
+   - Dependencies: none
+   - Holds the `frc_6413_common` Python package with shared V5 schema constants and credentials
+   - All other packages depend on this one as a workspace dependency
+
+2. **Root `pyproject.toml`** - Workspace configuration
    - Defines the workspace with 3 member packages
    - Sets Python version requirement (>=3.11)
    - Includes optional `common` dependency group
 
-2. **`Scouting-Scripts/pyproject.toml`** - Scouting scripts package
+3. **`Scouting-Scripts/pyproject.toml`** - Scouting scripts package
    - Dependencies: `pymongo`, `tba-api-v3client`, `colorama`, `tqdm`
    - Defines entry points for main scripts (can use `uv run scouting-match`)
 
-3. **`Strategy-Dashboard/pyproject.toml`** - Dashboard package
+4. **`Strategy-Dashboard/pyproject.toml`** - Dashboard package
    - Dependencies: `streamlit`, `plotly`, `numpy`, `pandas`, `scipy`, `pymongo`, `tba-api-v3client`, `colorama`, `streamlit-plotly-events`, `tqdm`, `pillow-heif`, `pillow`
    - Entry point for dashboard (`uv run strategy-dashboard`)
 
-4. **`Tools/pyproject.toml`** - Utility scripts package
+5. **`Tools/pyproject.toml`** - Utility scripts package
    - Dependencies: `pymongo`, `tba-api-v3client`, `colorama`, `tqdm`
    - Standalone - can run any tool script directly
 
-5. **`UV_SCRIPTS.md`** - Complete script reference
+6. **`UV_SCRIPTS.md`** - Complete script reference
    - All commands for running Python scripts with uv
    - Organized by package (Scouting-Scripts, Strategy-Dashboard, Tools)
 
@@ -75,17 +80,36 @@ Once uv is working, you can remove:
 - `requirements.txt` (deprecated)
 - `Scouting-Scripts/requirements.txt` (deprecated)
 
+## Shared Configuration
+
+The `frc-6413-common` package holds V5 schema constants and credentials shared by all Python scripts. Scripts import them as:
+
+```python
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
+```
+
+`Strategy-Dashboard/config.py` still exists and holds dashboard-specific UI configuration (visualization colors, stat mappings, page configs) plus — for now — a duplicated subset of schema constants. That duplication will be reconciled on a separate dashboard cleanup branch.
+
 ## Workspace Structure
 
 ```
 2026-Strategy-Scouting/
-├── pyproject.toml          # Workspace config
-├── uv.lock                 # Generated after first `uv sync`
-├── Scouting-App/           # Static HTML/JS (no pyproject.toml)
+├── pyproject.toml                  # Workspace config (4 members)
+├── uv.lock                         # Generated after first `uv sync`
+├── Common/
+│   ├── pyproject.toml              # Package: frc-6413-common
+│   ├── credentials.py.example      # Committed template for new users
+│   └── frc_6413_common/
+│       ├── __init__.py
+│       ├── config.py               # Shared V5 schema constants
+│       └── credentials.py          # Gitignored; per-user secrets
+├── Scouting-App/                   # Static HTML/JS (no pyproject.toml)
 ├── Scouting-Scripts/
-│   └── pyproject.toml      # Package: frc-6413-scouting-scripts
+│   └── pyproject.toml              # Package: frc-6413-scouting-scripts
 ├── Strategy-Dashboard/
-│   └── pyproject.toml      # Package: frc-6413-strategy-dashboard
+│   ├── pyproject.toml              # Package: frc-6413-strategy-dashboard
+│   └── config.py                   # Dashboard-only UI config (kept local)
 └── Tools/
-    └── pyproject.toml      # Package: frc-6413-scouting-tools
+    └── pyproject.toml              # Package: frc-6413-scouting-tools
 ```

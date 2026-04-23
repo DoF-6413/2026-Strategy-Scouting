@@ -16,6 +16,21 @@ uv sync --link-mode=copy
 uv sync
 ```
 
+## Setting up credentials (one-time, per machine)
+
+The shared package needs your TBA API key and MongoDB connection string before any script can run. Copy the committed example file and edit your local copy:
+
+```bash
+cp Common/credentials.py.example Common/frc_6413_common/credentials.py
+```
+
+Then open `Common/frc_6413_common/credentials.py` and fill in:
+
+- `TBA_AUTH_KEY` — your The Blue Alliance API key from <https://www.thebluealliance.com/account>
+- `PRIMARY_CONNECTION_STRING` — `"mongodb://localhost:27017/"` for a local MongoDB, or your Atlas connection string
+
+`Common/frc_6413_common/credentials.py` is gitignored and will never be committed.
+
 ## Quick Reference
 
 - Always run from **repo root**
@@ -99,3 +114,14 @@ uv add --package frc-6413-strategy-dashboard <package-name>
 # Add to Tools
 uv add --package frc-6413-scouting-tools <package-name>
 ```
+
+### Shared configuration constants
+
+V5 schema constants (`DB_NAME`, `V5_COL_*`, `DT_*`, etc.) and credentials live in the `frc-6413-common` package and are imported as:
+
+```python
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
+```
+
+To edit shared schema constants, edit `Common/frc_6413_common/config.py`. Dashboard-specific UI configuration (colors, stat mappings, page configs) lives in `Strategy-Dashboard/config.py` instead.
