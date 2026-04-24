@@ -25,7 +25,8 @@ from tbaapiv3client.rest import ApiException
 
 # Example output:
 # (venv) D:\Workspace\TBA-python>python get_event_matches_2022_v2.py
-# Enter the event code for the event to get data for (or 'quit' to exit): [{'actual_time': 1740876490,
+# Enter the event code for the event to get data for (or 'quit' to exit): 2025caoc
+# [{'actual_time': 1740876490,
 #  'alliances': {'blue': {'dq_team_keys': [],
 #                         'score': 136,
 #                         'surrogate_team_keys': [],
@@ -155,14 +156,19 @@ from tbaapiv3client.rest import ApiException
 ...
 
 if __name__ == "__main__":
-    eventCode: str = input("Enter the event code for the event to get data for (or 'quit' to exit): ").strip()
+    eventCode: str = input(
+        "Enter the event code for the event to get data for "
+        "(or 'quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         print("The session was aborted at the event code prompt")
         sys.exit(0)
 
     # Configure API key authorization: apiKey
-    configuration = tbaapiv3client.Configuration(api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY})
+    configuration = tbaapiv3client.Configuration(
+        api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY}
+    )
 
     # Enter a context with an instance of the API client
     with tbaapiv3client.ApiClient(configuration) as api_client:
@@ -173,4 +179,4 @@ if __name__ == "__main__":
             api_response = api_instance.get_event_matches(eventCode)
             pprint(api_response)
         except ApiException as e:
-            print("Exception when calling EventApi.get_event_matches: %s\n" % e)
+            print(f"Exception when calling EventApi.get_event_matches: {e}\n")

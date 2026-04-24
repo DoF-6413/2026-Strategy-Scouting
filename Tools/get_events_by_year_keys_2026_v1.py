@@ -29,12 +29,10 @@
 import logging
 import os
 import sys
-import time
 from datetime import datetime
 from pprint import pprint
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
-import tbaapiv3client
 from colorama import Fore, Style, init
 from frc_6413_common import config as cfg
 from tbaapiv3client.api import EventApi, TBAApi

@@ -119,8 +119,15 @@ def calcNewScore(currentScore: float, scoreChangeFactor: float, randomizeFactor:
 # increases/decreases
 for team in range(len(a_Teams)):
     gamePieces = randint(0, MAXGAMEPIECES)
-    a_Teams[team][HUB] = 0 if not a_Teams[team][CANTELEHUB] else gamePieces
-    a_Teams[team][HUBMISS] = 0 if not a_Teams[team][CANTELEHUB] else randint(0, MAXGAMEPIECES - gamePieces)
+
+    a_Teams[team][HUB] = (
+        0 if not a_Teams[team][CANTELEHUB] else gamePieces
+    )
+
+    a_Teams[team][HUBMISS] = (
+        0 if not a_Teams[team][CANTELEHUB]
+        else randint(0, MAXGAMEPIECES - gamePieces)
+    )
 
 # Output the starting bounding JSON container (legacy array mode only)
 if args.L:
@@ -157,8 +164,18 @@ for matchNum in range(1, 41):
             autoHubMiss = MAXPRELOAD - autoHub
 
         # The Pythonic way of doing the above is:
-        # autoHub = 0 if not a_Teams[team][CANAUTOHUB] else calcNewScore(randint(0, MAXPRELOAD), a_Teams[team][AUTOSCORECHANGEFACTOR], a_Teams[team][AUTORANDOMIZEFACTOR])
-        # autoHubMiss = 0 if not a_Teams[team][CANAUTOHUB] else MAXPRELOAD - autoHub
+        # autoHub = (
+        #     0 if not a_Teams[team][CANAUTOHUB]
+        #     else calcNewScore(
+        #         randint(0, MAXPRELOAD),
+        #         a_Teams[team][AUTOSCORECHANGEFACTOR],
+        #         a_Teams[team][AUTORANDOMIZEFACTOR],
+        #     )
+        # )
+        # autoHubMiss = (
+        #     0 if not a_Teams[team][CANAUTOHUB]
+        #     else MAXPRELOAD - autoHub
+        # )
 
         # Teleop phase values (SAVED in the team array)
 
@@ -179,8 +196,22 @@ for matchNum in range(1, 41):
             )
 
         # The Pythonic way to the above is:
-        # a_Teams[team][HUB] = 0 if not a_Teams[team][CANTELEHUB] else calcNewScore(a_Teams[team][HUB], a_Teams[team][TELESCORECHANGEFACTOR], a_Teams[team][TELERANDOMIZEFACTOR])
-        # a_Teams[team][HUBMISS] = 0 if not a_Teams[team][CANTELEHUB] else calcNewScore(a_Teams[team][HUBMISS], a_Teams[team][TELESCORECHANGEFACTOR], a_Teams[team][TELERANDOMIZEFACTOR])
+        # a_Teams[team][HUB] = (
+        #     0 if not a_Teams[team][CANTELEHUB]
+        #     else calcNewScore(
+        #         a_Teams[team][HUB],
+        #         a_Teams[team][TELESCORECHANGEFACTOR],
+        #         a_Teams[team][TELERANDOMIZEFACTOR],
+        #     )
+        # )
+        # a_Teams[team][HUBMISS] = (
+        #     0 if not a_Teams[team][CANTELEHUB]
+        #     else calcNewScore(
+        #         a_Teams[team][HUBMISS],
+        #         a_Teams[team][TELESCORECHANGEFACTOR],
+        #         a_Teams[team][TELERANDOMIZEFACTOR],
+        #     )
+        # )
 
         # End game phase values (NOT saved in the team array)
         # For 2026 we will do the Teleop observation checks here instead since

@@ -24,9 +24,9 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from colorama import Fore, init
+from colorama import Fore, Style, init
 
 # from pprint import pprint
 from frc_6413_common import config as cfg
@@ -248,10 +248,6 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}")
     except Exception as e:
         err_msg: str = f"ERROR: Failed to access the database: {e}"
         logger.error(err_msg)
@@ -321,11 +317,14 @@ def get_event_teams(api_instance: TeamApi, eventCode: str) -> Optional[List[Dict
 
         if api_response is None:
             # No data found, display error message with colorama
-            err_msg: str = f"{Fore.RED}ERROR: Unable to get the list of teams for {eventCode}. Check your event code and try again!"
+            err_msg: str = (
+                f"{Fore.RED}ERROR: Unable to get the list of teams for "
+                f"{eventCode}. Check your event code and try again!"
+            )
             logger.error(err_msg)
             print(err_msg)
             return None
-        
+
         # Sort the list by team_number in ascending order
         sorted_teams = sorted(api_response, key=lambda team: team.team_number)
 
