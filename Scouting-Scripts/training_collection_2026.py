@@ -16,18 +16,19 @@
 # where the TBA and PyMongo Python libraries are installed.  They are NOT
 # installed in the base, scrapy, OR Anaconda environments!!
 
-import logging
 import json
+import logging
+import os
 import re
 import sys
-import os
 from datetime import datetime
-from typing import Dict, Union, List, Optional
-from colorama import init, Fore, Style
-from pymongo.database import Database
-from pymongo.collection import Collection
+from typing import Dict, List, Optional, Union
+
+from colorama import Fore, Style, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
+from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 
@@ -238,10 +239,6 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}{Style.RESET_ALL}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}{Style.RESET_ALL}")
     except Exception as e:
         err_msg: str = f"ERROR: Failed to access the database {databaseName}: {e}"
         logger.error(err_msg)
@@ -337,7 +334,9 @@ def inflate_tablet_data(tabletData: str)  -> Optional[Dict[str, Union[str, int]]
     # 1: Remove all embedded newlines
     # 2: Get rid of extra whitespace inside the comments.
     # 3: Trim off any leading or trailing whitespace while
-    matchData[ "comments" ] = re.sub(r'\s+', ' ', matchData[ "comments" ].replace("\n", " ")).strip()
+    comments = matchData[ "comments" ]
+    cleaned = re.sub(r"\s+", " ", comments.replace("\n", " ")).strip()
+    matchData[ "comments" ] = cleaned
 
     # For Streamlits benefit we remove the TBA prefix.
     matchData[ "team" ] = str( matchData[ 'key' ] )
@@ -345,7 +344,13 @@ def inflate_tablet_data(tabletData: str)  -> Optional[Dict[str, Union[str, int]]
     # Set the _id value of the entry to be a combination of the event code,
     # match type & number plus the team number.
 
-    id_to_use = eventCode + "_" + matchData[ 'compLevel' ] + str( matchData[ 'matchNumber' ] ) + "_frc" + matchData[ "team" ]
+    # No need for str(matchData['matchNumber']) in an f-string
+    id_to_use = (
+        f"{eventCode}_"
+        f"{matchData['compLevel']}"
+        f"{matchData['matchNumber']}_frc"
+        f"{matchData['team']}"
+    )
 
     matchData[ '_id' ] = id_to_use
 
@@ -374,7 +379,10 @@ def main() -> None:
     replayFile = f"TrainingData_{datetime.now().strftime('%Y%m%d_%H%M%S')}.data"
     logger.info(f"The data log for this session is {replayFile}")
 
-    eventCode: str = input("Enter the event code for the event you are collecting training for (or 'quit' to exit): ").strip()
+    eventCode = input(
+        "Enter the event code for the event you are collecting training for "
+        "(or 'quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         logger.info("The session was aborted at the event code prompt")

@@ -233,7 +233,9 @@ def inflate_tablet_data( tabletData: str )  -> Optional[Dict[str, Union[str, int
     # 1: Remove all embedded newlines
     # 2: Get rid of extra whitespace inside the comments.
     # 3: Trim off any leading or trailing whitespace
-    matchData[ "comments" ] = re.sub(r'\s+', ' ', matchData[ "comments" ].replace("\n", " ") ).strip()
+    comments = matchData[ "comments" ]
+    cleaned = re.sub(r"\s+", " ", comments.replace("\n", " ")).strip()
+    matchData[ "comments" ] = cleaned
 
     # Add the correct docType to the data
     matchData[ "docType" ] = cfg.DT_SCOUTING_MATCH
@@ -263,7 +265,13 @@ def inflate_tablet_data( tabletData: str )  -> Optional[Dict[str, Union[str, int
     # is no longer a need for a set.  Or perhaps we simply tack it to the end
     # of the compLevel value on the web page side...
 
-    id_to_use = eventCode + "_" + matchData[ 'compLevel' ] + str( matchData[ 'matchNumber' ] ) + "_frc" + matchData[ "team" ]
+    # No need for str(matchData['matchNumber']) in an f-string
+    id_to_use = (
+        f"{eventCode}_"
+        f"{matchData['compLevel']}"
+        f"{matchData['matchNumber']}_frc"
+        f"{matchData['team']}"
+    )
 
     matchData[ '_id' ] = id_to_use
 
@@ -287,7 +295,10 @@ def main() -> None:
     DoFLogger.info( f"The data log for this session is {replayFile}" )
 
     while True:
-        eventCode = input( "Enter the event code for the event you are scouting (or 'quit' to exit): " ).strip()
+        eventCode = input(
+            "Enter the event code for the event you are scouting "
+            "(or 'quit' to exit): "
+        ).strip()
 
         if eventCode.lower() == "quit":
             DoFLogger.info( "The session was aborted at the event code prompt" )

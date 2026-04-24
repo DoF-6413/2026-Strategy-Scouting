@@ -6,19 +6,20 @@
 #
 # Outputs all missing data
 
-import sys
 import re as regex
-from typing import Tuple, List, Optional
-from tbaapiv3client.configuration import Configuration
-from tbaapiv3client.api import TBAApi, EventApi
-from tbaapiv3client.api_client import ApiClient
-from tbaapiv3client.models.match_simple import MatchSimple
-from tbaapiv3client.rest import ApiException
-from colorama import init, Fore, Style
+import sys
+from typing import List, Optional, Tuple
+
+from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from frc_6413_common import credentials as creds
-from frc_6413_common import config as cfg
+from tbaapiv3client.api import EventApi, TBAApi
+from tbaapiv3client.api_client import ApiClient
+from tbaapiv3client.configuration import Configuration
+from tbaapiv3client.models.match_simple import MatchSimple
+from tbaapiv3client.rest import ApiException
 
 # Simple list holding
 comp_level_order = [
@@ -104,12 +105,22 @@ def get_matches(api_client: ApiClient, event_code: str, team_number: str) -> Lis
 
         if api_response is None:
             # No data found, display error message with colorama
-            error_message = f"{Fore.RED}ERROR: Unable to get the list of matches for {eventCode}. Check your event code and try again!{Style.RESET_ALL}"
+            error_message: str = (
+                f"{Fore.RED}ERROR: Unable to get the list of matches for "
+                f"{eventCode}. Check your event code and try again!{Style.RESET_ALL}"
+            )
             print(error_message)
         else:
             if len(team_number) > 0:
                 # Filter the matches by team number
-                matches = [match for match in api_response if f"frc{team_number}" in match.alliances.blue.team_keys or f"frc{team_number}" in match.alliances.red.team_keys]
+                team_key = f"frc{team_number}"
+
+                matches = [
+                    match
+                    for match in api_response
+                    if team_key in match.alliances.blue.team_keys
+                    or team_key in match.alliances.red.team_keys
+                ]
             else:
                 matches = api_response
             return matches
@@ -117,23 +128,30 @@ def get_matches(api_client: ApiClient, event_code: str, team_number: str) -> Lis
         # Return the API event matches info
         return matches
     except ApiException as e:
-        print(f"{Fore.RED}Exception when getting matches: %s{Style.RESET_ALL}\n" % e)
+        print(f"{Fore.RED}Exception when getting matches: {e}{Style.RESET_ALL}\n")
         return None
 
 
 ###############################################################################
 ###############################################################################
-def check_mongo_for_match(collection: Collection, match: MatchSimple, team: str) -> list:
+def check_mongo_for_match(
+    collection: Collection,
+    match: MatchSimple,
+    team: str
+) -> list:
     """
-    Compares the data in the MongoDB with that of the match data to confirm the MongoDB holds the data
+    Compares the data in the MongoDB with that of the match data to confirm the
+    MongoDB holds the data
 
     Args:
         collection (Collection): The MongoDB collection to check data in
         match (MatchSimple): A TBA MatchSimple object of the match to check
-        team (str): The team number to filter checks to. If an empty string, it will check for all teams in the match.
+        team (str): The team number to filter checks to. If an empty string,
+          it will check for all teams in the match.
 
     Returns:
-        A list of all missing scouting data entries for the match. If there are no missing entries, the list will be of length zero.
+        A list of all missing scouting data entries for the match. If there are
+        no missing entries, the list will be of length zero.
     """
     missing_entries: List[str] = list()
 
@@ -142,12 +160,19 @@ def check_mongo_for_match(collection: Collection, match: MatchSimple, team: str)
     if len(team) > 0:
         all_teams: List[str] = [team]
     else:
-        all_teams: List[str] = match.alliances.red.team_keys + match.alliances.blue.team_keys
+        all_teams: List[str] = (
+            match.alliances.red.team_keys + match.alliances.blue.team_keys
+        )
         all_teams = [team.strip("frc") for team in all_teams]
 
-    # List of match keys for every single entry we expect to find in the MongoDB for that match based on TBA match data
-    expected_entries: List[str] = [f"{match.key}_frc{team}" for team in all_teams]
-    # Mongo query that finds all items in the MongoDB with the match key and a team number in all_teams
+    # List of match keys for every single entry we expect to find in the
+    # MongoDB for that match based on TBA match data
+    expected_entries: List[str] = [
+        f"{match.key}_frc{team}"
+        for team in all_teams
+    ]
+    # Mongo query that finds all items in the MongoDB with the match key and a
+    # team number in all_teams
     mongo_match_entries = collection.find({
         "_id": {"$regex": f"{match.key}(?=_)"},
         "team": {"$in": all_teams},
@@ -157,7 +182,8 @@ def check_mongo_for_match(collection: Collection, match: MatchSimple, team: str)
     # Extracts all the entry keys/IDs from the mong_match_entries
     mongo_found_keys = [entry["_id"] for entry in mongo_match_entries]
 
-    # Appends all entries in expected_entries not in mongo_found_keys to missing_entries
+    # Appends all entries in expected_entries not in mongo_found_keys to missing
+    # entries
     for entry in expected_entries:
         if entry not in mongo_found_keys:
             missing_entries.append(entry)
@@ -169,13 +195,19 @@ def check_mongo_for_match(collection: Collection, match: MatchSimple, team: str)
 ###############################################################################
 def match_key_to_dict(match_key: str) -> dict:
     """
-    Converts a string containing a match key (excluding event code) to a dictionary containing the event code, competition level, match number, and set number.
+    Converts a string containing a match key (excluding event code) to a
+    dictionary containing the event code, competition level, match number, and
+    set number.
 
     Args:
-        match_key (str): The match key to convert. Format should follow ``<comp level><set number>m<match number>`` eg ``qm1`` or ``f1m1``. For quals there is no set number.
+        match_key (str): The match key to convert. Format should follow
+            ``<comp level><set number>m<match number>`` eg ``qm1`` or ``f1m1``.
+            For quals there is no set number.
 
     Returns:
-        dict: Dictionary containing the competition level, match number, and set number. Keys are ``comp_level``, ``match_number``, and ``set``, respectively.
+        dict: Dictionary containing the competition level, match number, and
+            set number. Keys are ``comp_level``, ``match_number``, and ``set``,
+            respectively.
     """
     comp_level: str = regex.search(r"qm|f|sf(?=\d+)", match_key).group()
     match_number: str = int(regex.search(r"(?<=m)\d+$", match_key).group())
@@ -204,20 +236,29 @@ if __name__ == "__main__":
     # colorama call BEFORE doing ANY output.
     init(autoreset=True, convert=True)
 
-    eventCode: str = input("Enter the event code to check data for ('quit' to exit): ").strip()
+    eventCode: str = input(
+        "Enter the event code to check data for "
+        "(or 'quit' to exit): "
+    ).strip()
     if eventCode.lower() == "quit":
         sys.exit(0)
 
-    teamNumber: str = input("Enter the team number to check data for, or leave blank to check data for all teams ('quit' to exit): ").strip()
+    teamNumber: str = input(
+        "Enter the team number to check data for, or leave blank to check "
+        "data for all teams ('quit' to exit): "
+    ).strip()
     if teamNumber.lower() == "quit":
         sys.exit(0)
 
-    matchKey: str = input("Enter the match to check data through - formatted as the end of a match key. eg 'qm13' ('quit' to exit): ").strip()
+    matchKey: str = input(
+        "Enter the match to check data through - formatted as the end "
+        "of a match key. eg 'qm13' ('quit' to exit): "
+    ).strip()
     if matchKey.lower() == "quit":
         sys.exit(0)
 
     # Create required API configuration info
-    configuration = Configuration( api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY} )
+    configuration = Configuration(api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY})
 
     # Enter a context with an instance of the API client to be used by all
     # other functions that call TBA for data.
@@ -233,32 +274,57 @@ if __name__ == "__main__":
         matches: Optional[List[MatchSimple]] = get_matches(api_client, eventCode, teamNumber)
 
         if matches is None:  # Check for None immediately after getting matches
-            print(f"{Fore.RED}ERROR: Could not retrieve matches. Data not checked.{Style.RESET_ALL}")
+            print(
+                f"{Fore.RED}ERROR: Could not retrieve matches. "
+                f"Data not checked.{Style.RESET_ALL}"
+            )
             sys.exit(1)
         else:  # if matches is not None, proceed
-            # Gets the match key as a dictionary with each individual element accessible
+            # Gets the match key as a dictionary with each individual element
+            # accessible
             matchKeyDict = match_key_to_dict(matchKey)
-            # Gets all the data in the MongoDB match scouting colelction
+            # Gets all the data in the MongoDB match scouting collection
             mongoData = mongo_collection()
 
-            # Filters the matches to ensure all matches come before the specified match key
-            filteredMatches: List[MatchSimple] = [match for match in matches if
-                comp_level_order.index(match.comp_level) < comp_level_order.index(matchKeyDict["comp_level"])
-                or (match.comp_level == "qm" and match.match_number <= matchKeyDict["match_number"])
-                or (matchKeyDict["set_number"] is not None and match.comp_level in ("sf", "f") and match.set_number <= matchKeyDict["set_number"])
+            # Filters the matches to ensure all matches come before the
+            # specified match key
+            filteredMatches: List[MatchSimple] = [
+                match
+                for match in matches
+                if (
+                    comp_level_order.index(match.comp_level)
+                    < comp_level_order.index(matchKeyDict["comp_level"])
+                    or (
+                        match.comp_level == "qm"
+                        and match.match_number <= matchKeyDict["match_number"]
+                    )
+                    or (
+                        matchKeyDict["set_number"] is not None
+                        and match.comp_level in ("sf", "f")
+                        and match.set_number <= matchKeyDict["set_number"]
+                    )
+                )
             ]
 
-            if mongoData is None:  # Check for None immediately after getting MongoDB data
-                print(f"{Fore.RED}ERROR: Could not retrieve MongoDB Collection. Data not checked.{Style.RESET_ALL}")
+            # Check for None immediately after getting MongoDB data
+            if mongoData is None:
+                print(
+                    f"{Fore.RED}ERROR: Could not retrieve MongoDB Collection. "
+                    f"Data not checked.{Style.RESET_ALL}"
+                )
                 sys.exit(1)
 
             # List of all missing entries
             missingEntries: List[str] = list()
             for match in filteredMatches:
-                # List of invalid/missing entries found in the match data but not found in the MongoDB
-                matchMissingEntries: List[str] = check_mongo_for_match(mongoData, match, teamNumber)
+                # List of invalid/missing entries found in the match data but
+                # not found in the MongoDB
+                matchMissingEntries: List[str] = (
+                    check_mongo_for_match(mongoData, match, teamNumber)
+                )
 
-                # Add missing entries in the match to the missingEntries list, if there are any
+                # Add missing entries in the match to the missingEntries list,
+                # if there are any
                 if len(matchMissingEntries) > 0:
                     missingEntries.extend(matchMissingEntries)
 

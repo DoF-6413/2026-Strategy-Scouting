@@ -17,13 +17,14 @@
 # eventCode: The eventcode the prescouting notes are used to prepare for (prompted on run)
 # team: the team number
 
-import sys
 import re
-from typing import List, Dict, Any, Optional
-from pymongo import MongoClient
-from pymongo.results import DeleteResult, InsertManyResult
+import sys
+from typing import Any, Dict, List, Optional
+
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
+from pymongo import MongoClient
+from pymongo.results import DeleteResult, InsertManyResult
 
 
 def process_notes_file(input_file: str, event_code: str) -> Optional[List[Dict[str, Any]]]:
@@ -115,7 +116,10 @@ def write_to_mongodb(data: Optional[List[Dict[str, Any]]], event_code: str) -> N
 
 def main() -> None:
     """Main function to run the script."""
-    event_code: str = input("Enter event code the notes are prescouting for ('quit' to exit): ").strip()
+    event_code: str = input(
+        "Enter event code the notes are prescouting for "
+        "('quit' to exit): "
+    ).strip()
 
     if event_code.lower() == "quit":
         print("Script terminated by user.")

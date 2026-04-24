@@ -17,18 +17,19 @@
 # robust approach is to always use logging.Logger directly and not import it
 # from typing.
 
-import logging
 import json
+import logging
 import os
 import sys
 from datetime import datetime
-from typing import Dict, Union, List, Tuple, Optional, TextIO
-from colorama import init, Fore, Style
-from pymongo.database import Database
-from pymongo.collection import Collection
-from tqdm import tqdm
+from typing import List, Optional
+
+from colorama import Fore, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
+from pymongo.database import Database
+from tqdm import tqdm
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 
@@ -119,10 +120,6 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
         return client[databaseName]
     except ConnectionError as e:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
     except Exception as e:
@@ -251,7 +248,11 @@ def validate_configuration() -> None:
 
 ###############################################################################
 ###############################################################################
-def copyScoutingDocuments(srcDocuments: List[dict], dstCollection: Collection, eventCode: str) -> None:
+def copyScoutingDocuments(
+        srcDocuments: List[dict],
+        dstCollection: Collection,
+        eventCode: str,
+) -> None:
     """
     Copies scouting documents from a list of dictionaries to a MongoDB database,
     filtering by eventCode and using _id for uniqueness, with a progress bar.
@@ -309,11 +310,11 @@ def getEntriesFromFile(file_name: str) -> List[dict] | None:
                 logger.error(err_msg)
                 print(f"{Fore.RED}{err_msg}")
                 sys.exit(0)
-            
+
             status_msg: str = f"Found {len(data)} entries in {file_name}"
             logger.info(status_msg)
             print(status_msg)
-            
+
             return data
 
     except Exception as e:
@@ -340,11 +341,17 @@ def main() -> None:
 
     # Alert the user as to what we plan to do so they do not get surprised!
     print(f"{Fore.RED}WARNING:")
-    print("This script will copy ALL scouting data from a given file to your primary MongoDB server")
+    print(
+        "This script will copy ALL scouting data "
+        "from a given file to your primary MongoDB server"
+    )
     print(f"{Fore.RED}Quit now if this is NOT what you want to happen!!\n")
 
     # Prompt user for event code
-    eventCode: str = input("Enter the event code to copy scouting data for ('quit' to exit): ").strip()
+    eventCode: str = input(
+        "Enter the event code to copy scouting data for "
+        "(or 'quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         logger.info("The session was aborted at the event code prompt")
@@ -353,7 +360,10 @@ def main() -> None:
     logger.info(f"The event code for this session is {eventCode}")
 
     # Get the file to read the data from.  Abort if we fail to have one set.
-    fileName: str = input("Enter the name of the file to read the data from ('quit' to exit): ").strip()
+    fileName: str = input(
+        "Enter the name of the file to read the data from "
+        "(or 'quit' to exit): "
+    ).strip()
 
     if fileName.lower() == "quit":
         logger.info("The session was aborted at the file name prompt")
