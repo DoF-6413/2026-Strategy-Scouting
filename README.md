@@ -51,7 +51,7 @@ That’s it — uv will download the correct Python version and all required pac
 
 **Step 3: Docker Desktop & MongoDB**
 
-###Windows
+### Windows
 
 To run Docker Desktop on Windows your computer must must meet specific requirements, particularly regarding virtualization and the Windows Subsystem for Linux (WSL).
 
@@ -87,7 +87,7 @@ To run Docker Desktop on Windows your computer must must meet specific requireme
 **NOTE:** When you launch your first MongoDB container, make sure you configure the container to have an exposed port of 27017 or else you will not be albe to contact the server.
 
 
-###Mac
+### Mac
 
 Here are the steps to install Docker Desktop on Mac:
 
