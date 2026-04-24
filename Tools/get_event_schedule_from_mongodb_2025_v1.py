@@ -3,8 +3,8 @@
 # eventual goal is to make such logic part of my Slackbot that can retrieve
 # data and post to Slack as needed/requested.
 #
-# This is a 2025 V5 configuration update to get_event_schedule_from_mongodb_v3.py.
-# Changes include:
+# This is a 2025 V5 configuration update to
+# get_event_schedule_from_mongodb_v3.py. Changes include:
 #
 # 1: Removed Python 2.x legacy line:
 #        from __future__ import print_function
@@ -37,18 +37,19 @@
 # scrapy environments!!
 
 import logging
-import sys
 import os
+import sys
 from datetime import datetime
+
+# from ast import expr_context
 from typing import Any, Dict, List, Optional
-from pymongo.database import Database
+
+from colorama import Fore, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
-from colorama import init, Fore
-# from ast import expr_context
-from pprint import pprint
-import config as cfg
-import credentials as creds
+from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 
@@ -248,16 +249,12 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
     # Create a connection to the specified MongoDB server
 
     try:
-        client: MongoClient = MongoClient( databaseURI )
+        client: MongoClient = MongoClient(databaseURI)
 
         # Use/Create the database to hold our data
-        return client[ databaseName ]
+        return client[databaseName]
     except ConnectionError as e:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
     except Exception as e:
@@ -270,7 +267,11 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
 
 ###############################################################################
 ###############################################################################
-def get_event_schedule(db: Database, eventCode: str, compLevel: str) -> Cursor[Dict[str, Any]]:
+def get_event_schedule(
+    db: Database,
+    eventCode: str,
+    compLevel: str
+) -> Cursor[Dict[str, Any]]:
     '''
     Get the full event schedule from the MongoDB.
 
@@ -291,14 +292,21 @@ def get_event_schedule(db: Database, eventCode: str, compLevel: str) -> Cursor[D
     # Determine the sorting key based on compLevel
     sort_key: str = "set_number" if compLevel == cfg.MATCHLEVEL_SEMIS else "match_number"
 
-    matches: Cursor[Dict[str, Any]] = matchCollection.find({"event_key": eventCode, "comp_level": compLevel}).sort(sort_key)
+    matches: Cursor[Dict[str, Any]] = matchCollection.find(
+        {"event_key": eventCode, "comp_level": compLevel}
+        ).sort(sort_key)
 
     return matches
 
 
 ###############################################################################
 ###############################################################################
-def get_team_event_schedule(db: Database, eventCode: str, compLevel: str, teamKey: str) -> Cursor[Dict[str, Any]]:
+def get_team_event_schedule(
+    db: Database,
+    eventCode: str,
+    compLevel: str,
+    teamKey: str,
+) -> Cursor[Dict[str, Any]]:
     '''
     Get the event schedule for the event for just our team from the MongoDB.
 
@@ -321,7 +329,14 @@ def get_team_event_schedule(db: Database, eventCode: str, compLevel: str, teamKe
     # Determine the sorting key based on compLevel
     sort_key: str = "set_number" if compLevel == cfg.MATCHLEVEL_SEMIS else "match_number"
 
-    matches = matchCollection.find({"event_key": eventCode, "comp_level": compLevel, "$or": [{"alliances.blue.team_keys": teamKey}, {"alliances.red.team_keys": teamKey}]}).sort(sort_key)
+    matches = matchCollection.find({
+        "event_key": eventCode,
+        "comp_level": compLevel,
+        "$or": [
+            {"alliances.blue.team_keys": teamKey},
+            {"alliances.red.team_keys": teamKey}
+        ]
+    }).sort(sort_key)
 
     return matches
 
@@ -574,7 +589,10 @@ def main() -> None:
 
     # TODO: Add an event code check here to make sure the code is legit
 
-    teamKey: str = input("Enter the TBA team code you want the schedule for ('all'=all teams, 'quit' to exit): ").strip()
+    teamKey: str = input(
+        "Enter the TBA team code you want the schedule for "
+        "('all'=all teams, 'quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         logger.info("The session was aborted at the team code prompt")

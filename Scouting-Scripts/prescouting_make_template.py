@@ -17,11 +17,11 @@
 import sys
 from typing import Any, Dict, List, Optional, Set, TextIO, Tuple
 
-import config as cfg
-import credentials as creds
 import statbotics
 import tbaapiv3client
 from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from tabulate import tabulate
 from tbaapiv3client.api import TBAApi
 from tbaapiv3client.api_client import ApiClient
@@ -67,17 +67,36 @@ def is_TBA_down(api_client: ApiClient) -> Tuple[bool, int, int]:
 ###############################################################################
 def display_pre_event_stats(team_stats: List[Dict[str, Any]]) -> None:
     """
-    Formats Statbotics data into a table and highlights the top 10% 
+    Formats Statbotics data into a table and highlights the top 10%
     of teams in Auto, Teleop, and Endgame categories.
     """
-    headers = ["Rank", "Team", "Nickname", "Pre-Event EPA", "Auto", "Teleop", "Endgame"]
+    headers = [
+        "Rank",
+        "Team",
+        "Nickname",
+        "Pre-Event EPA",
+        "Auto",
+        "Teleop",
+        "Endgame",
+    ]
     table_data = []
 
     # Helper function to get thresholds for a specific breakdown key
     def get_threshold(data_list, key):
-        scores = [t.get("epa", {}).get("breakdown", {}).get(key, 0) or 0 for t in data_list]
-        if not scores: return 999
+        scores = [
+            t.get("epa", {}).get("breakdown", {}).get(key, 0) or 0
+            for t in data_list
+        ]
+
+        if not scores:
+            return 999
+
         return sorted(scores)[-max(1, int(len(scores) * 0.1))]
+
+    # Helper function to format the scores
+    def format_score(value, threshold):
+        value = round(value, 1)
+        return f"*{value}*" if value >= threshold and value > 0 else value
 
     auto_th = get_threshold(team_stats, "auto_points")
     tele_th = get_threshold(team_stats, "teleop_points")
@@ -99,9 +118,9 @@ def display_pre_event_stats(team_stats: List[Dict[str, Any]]) -> None:
 
         # Apply formatting to the numbers themselves if they meet the threshold
         # We wrap elite scores in asterisks to make them pop visually
-        auto_display = f"*{round(auto, 1)}*" if auto >= auto_th and auto > 0 else round(auto, 1)
-        tele_display = f"*{round(teleop, 1)}*" if teleop >= tele_th and teleop > 0 else round(teleop, 1)
-        end_display = f"*{round(endgame, 1)}*" if endgame >= end_th and endgame > 0 else round(endgame, 1)
+        auto_display = format_score(auto, auto_th)
+        tele_display = format_score(teleop, tele_th)
+        end_display = format_score(endgame, end_th)
 
         table_data.append([
             rank,
@@ -126,7 +145,7 @@ def get_filtered_team_data(
 ) -> List[Dict[str, Any]]:
     """
     Fetches Statbotics data and filters by a team list.
-    
+
     Args:
         eventCode: The TBA event key.
         team_strings: List of "NUMBER (NICKNAME)" strings.
@@ -189,7 +208,9 @@ def get_teams_for_event(
         teams = api_instance.get_event_teams(eventCode)
 
         if teams is None:
-            print(f"{Fore.RED}ERROR: Unable to get the list of teams for {eventCode}.{Style.RESET_ALL}")
+            print(
+                f"{Fore.RED}ERROR: Unable to get the list of teams for "
+                f"{eventCode}.{Style.RESET_ALL}")
             return None, {}
 
         # Sort teams by team number
@@ -205,7 +226,9 @@ def get_teams_for_event(
         return team_strings, rookie_years
 
     except ApiException as e:
-        print(f"{Fore.RED}Exception when calling TeamApi.get_event_teams: %s{Style.RESET_ALL}\n" % e)
+        print(
+            f"{Fore.RED}Exception when calling TeamApi.get_event_teams: "
+            f"{e}{Style.RESET_ALL}\n")
         return None, {}
 
 
@@ -382,13 +405,16 @@ def write_template(
 ###############################################################################
 if __name__ == "__main__":
 
-    eventCode: str = input("Enter the event code to get the team info for (or 'quit' to exit): ").strip()
+    eventCode: str = input(
+        "Enter the event code to get the team info for "
+        "(or 'quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         sys.exit(0)
 
     # Create required API configuration info
-    configuration = tbaapiv3client.Configuration( api_key={'X-TBA-Auth-Key': creds.TBAAUTHKEY} )
+    configuration = tbaapiv3client.Configuration(api_key={'X-TBA-Auth-Key': creds.TBA_AUTH_KEY})
 
     # To see coloring on Win10 consoles I found I needed to have this
     # colorama call before doing any output.
@@ -406,26 +432,45 @@ if __name__ == "__main__":
         teams, rookie_years = get_teams_for_event(api_client, eventCode)
 
         if teams is None:  # Check for None immediately after getting teams
-            print(f"{Fore.RED}ERROR: Could not retrieve teams. Template not generated.{Style.RESET_ALL}")
+            print(
+                f"{Fore.RED}ERROR: Could not retrieve teams. "
+                f"Template not generated.{Style.RESET_ALL}"
+            )
             sys.exit(1)
-        else: # if teams is not None, proceed
-            # Use pre_event = True for prescouting as without it we get AT EVENT data
-            # instead of data before the event...
+        else:  # if teams is not None, proceed
+            # Use pre_event = True for prescouting as without it we get AT
+            # EVENT data instead of data before the event...
             team_stats = get_filtered_team_data(eventCode, teams)
 
-            # If you want to see who has the best Auto instead of the best overall EPA, you can sort
-            # the list before passing it to the display function:
+            # If you want to see who has the best Auto instead of the best
+            # overall EPA, you can sort the list before passing it to the
+            # display function:
             # Sort by Auto Points instead of Start EPA (default)
-            # team_stats.sort(key=lambda x: x.get("epa", {}).get("breakdown", {}).get("auto_points", 0), reverse=True)
+            # team_stats.sort(
+            #     key=lambda x: x.get("epa", {}).get("breakdown", {}).get("auto_points", 0),
+            #     reverse=True,
+            # )
 
             # Display the pre-event stat rankings of all teams...
             # display_pre_event_stats(team_stats)
 
-            output_file_name: str = input("What file name would you like the template to be (excluding file extension)? ").strip()
-            try: # wrap file opening in try/except to handle potential errors
+            output_file_name: str = input(
+                "What file name would you like the template to be "
+                "(excluding file extension)? "
+            ).strip()
+            try:  # wrap file opening in try/except to handle potential errors
                 with open(output_file_name + ".md", "w+") as file:
-                    write_template(file, teams, team_stats, rookie_years, current_season)
+                    write_template(
+                        file,
+                        teams,
+                        team_stats,
+                        rookie_years,
+                        current_season
+                    )
                     print(f"Template written to {output_file_name + '.md'}")
             except OSError as e: # catch OS errors, such as permission issues.
-                print(f"{Fore.RED}Error writing to {output_file_name + '.md'}: {e}{Style.RESET_ALL}")
+                print(
+                    f"{Fore.RED}Error writing to {output_file_name}.md: {e}"
+                    f"{Style.RESET_ALL}"
+                    )
                 sys.exit(1)

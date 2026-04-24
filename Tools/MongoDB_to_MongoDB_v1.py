@@ -18,17 +18,17 @@
 # from typing.
 
 import logging
-import json
 import os
 import sys
 from datetime import datetime
-from typing import Dict, Union, List, Tuple, Optional
-from colorama import init, Fore, Style
-from pymongo.database import Database
+from typing import List, Optional
+
+from colorama import Fore, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
 from pymongo.collection import Collection
+from pymongo.database import Database
 from tqdm import tqdm
-import config as cfg
-import credentials as creds
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 
@@ -119,10 +119,6 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
         return client[databaseName]
     except ConnectionError as e:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
     except Exception as e:
@@ -318,11 +314,17 @@ def main() -> None:
 
     # Alert the user as to what we plan to do so they do not get surprised!
     print(f"{Fore.RED}WARNING:")
-    print("This script will copy ALL scouting data from your primary to your secondary MongoDB server")
+    print(
+        "This script will copy ALL scouting data from your primary "
+        "to your secondary MongoDB server"
+    )
     print(f"{Fore.RED}Quit now if this is NOT what you want to happen!!\n")
 
     # Prompt user for event code
-    eventCode: str = input("Enter the event code to copy scouting data for ('quit' to exit): ").strip()
+    eventCode: str = input(
+        "Enter the event code to copy scouting data for "
+        "('quit' to exit): "
+    ).strip()
 
     if eventCode.lower() == "quit":
         logger.info("The session was aborted at the event code prompt")

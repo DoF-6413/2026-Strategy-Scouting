@@ -12,22 +12,24 @@
 # scrapy environments!!
 
 import logging
-import sys
 import os
+import sys
 from datetime import datetime
-from typing import Dict, List, Union, Tuple, Optional
+from typing import Dict, List, Optional, Tuple, Union
+
+from colorama import Fore, Style, init
+from frc_6413_common import config as cfg
+from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
+from pymongo.database import Database
+
 # import tbaapiv3client
-from tbaapiv3client.api import TBAApi, EventApi
+from tbaapiv3client.api import EventApi, TBAApi
 from tbaapiv3client.api_client import ApiClient
 from tbaapiv3client.configuration import Configuration
 from tbaapiv3client.rest import ApiException
-from pymongo.database import Database
-from pymongo.collection import Collection
-from colorama import init, Fore, Style
-from urllib3.exceptions import MaxRetryError
 from tqdm import tqdm
-import config as cfg
-import credentials as creds
+from urllib3.exceptions import MaxRetryError
 
 _logger: Optional[logging.Logger] = None  # Module-level variable for logging
 
@@ -283,10 +285,6 @@ def get_database( databaseURI: str, databaseName: str ) -> Optional["Database"]:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
-    except AuthenticationError as e:
-        err_msg: str = f"ERROR: Failed to authenticate with MongoDB: {e}"
-        logger.error(err_msg)
-        print(f"{Fore.RED}{err_msg}")
     except Exception as e:
         err_msg: str = f"ERROR: Failed to access the database: {e}"
         logger.error(err_msg)
@@ -470,7 +468,10 @@ def main() -> None:
             print(f"The TBA API is {Fore.RED}DOWN{Style.RESET_ALL}.")
             sys.exit(0)
 
-        eventCode: str = input("Enter the event code for the event to get data for (or 'quit' to exit): ").strip()
+        eventCode: str = input(
+            "Enter the event code for the event to get data for "
+            "(or 'quit' to exit): "
+        ).strip()
 
         if eventCode.lower() == "quit":
             logger.info("The session was aborted at the event code prompt")

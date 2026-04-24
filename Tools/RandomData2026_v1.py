@@ -4,7 +4,7 @@
 # The script DOES use some weighting to generate score increases/decreases
 # between matches so we can see likely trends in Tableau or Plotly.
 
-from random import randint, uniform, shuffle
+from random import randint, shuffle, uniform
 
 # 2026 Scouting Data item indexes.  0 - 5 will NEVER change because they
 # are NOT game dependent.  Game specific values start at 6.  I use names
@@ -105,8 +105,15 @@ def calcNewScore(currentScore: float, scoreChangeFactor: float, randomizeFactor:
 # increases/decreases
 for team in range(len(a_Teams)):
     gamePieces = randint(0, MAXGAMEPIECES)
-    a_Teams[team][HUB] = 0 if not a_Teams[team][CANTELEHUB] else gamePieces
-    a_Teams[team][HUBMISS] = 0 if not a_Teams[team][CANTELEHUB] else randint(0, MAXGAMEPIECES - gamePieces)
+
+    a_Teams[team][HUB] = (
+        0 if not a_Teams[team][CANTELEHUB] else gamePieces
+    )
+
+    a_Teams[team][HUBMISS] = (
+        0 if not a_Teams[team][CANTELEHUB]
+        else randint(0, MAXGAMEPIECES - gamePieces)
+    )
 
 # Output the starting bounding JSON container
 print("[")
@@ -142,8 +149,18 @@ for matchNum in range(1, 41):
             autoHubMiss = MAXPRELOAD - autoHub
 
         # The Pythonic way of doing the above is:
-        # autoHub = 0 if not a_Teams[team][CANAUTOHUB] else calcNewScore(randint(0, MAXPRELOAD), a_Teams[team][AUTOSCORECHANGEFACTOR], a_Teams[team][AUTORANDOMIZEFACTOR])
-        # autoHubMiss = 0 if not a_Teams[team][CANAUTOHUB] else MAXPRELOAD - autoHub
+        # autoHub = (
+        #     0 if not a_Teams[team][CANAUTOHUB]
+        #     else calcNewScore(
+        #         randint(0, MAXPRELOAD),
+        #         a_Teams[team][AUTOSCORECHANGEFACTOR],
+        #         a_Teams[team][AUTORANDOMIZEFACTOR],
+        #     )
+        # )
+        # autoHubMiss = (
+        #     0 if not a_Teams[team][CANAUTOHUB]
+        #     else MAXPRELOAD - autoHub
+        # )
 
         # Teleop phase values (SAVED in the team array)
 
@@ -164,8 +181,22 @@ for matchNum in range(1, 41):
             )
 
         # The Pythonic way to the above is:
-        # a_Teams[team][HUB] = 0 if not a_Teams[team][CANTELEHUB] else calcNewScore(a_Teams[team][HUB], a_Teams[team][TELESCORECHANGEFACTOR], a_Teams[team][TELERANDOMIZEFACTOR])
-        # a_Teams[team][HUBMISS] = 0 if not a_Teams[team][CANTELEHUB] else calcNewScore(a_Teams[team][HUBMISS], a_Teams[team][TELESCORECHANGEFACTOR], a_Teams[team][TELERANDOMIZEFACTOR])
+        # a_Teams[team][HUB] = (
+        #     0 if not a_Teams[team][CANTELEHUB]
+        #     else calcNewScore(
+        #         a_Teams[team][HUB],
+        #         a_Teams[team][TELESCORECHANGEFACTOR],
+        #         a_Teams[team][TELERANDOMIZEFACTOR],
+        #     )
+        # )
+        # a_Teams[team][HUBMISS] = (
+        #     0 if not a_Teams[team][CANTELEHUB]
+        #     else calcNewScore(
+        #         a_Teams[team][HUBMISS],
+        #         a_Teams[team][TELESCORECHANGEFACTOR],
+        #         a_Teams[team][TELERANDOMIZEFACTOR],
+        #     )
+        # )
 
         # End game phase values (NOT saved in the team array)
         # For 2026 we will do the Teleop observation checks here instead since

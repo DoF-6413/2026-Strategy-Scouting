@@ -1,0 +1,13 @@
+[project]
+name = "frc-6413-common"
+version = "2026.0.0"
+description = "Shared configuration constants and credentials for FRC 6413 scripts"
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["frc_6413_common"]

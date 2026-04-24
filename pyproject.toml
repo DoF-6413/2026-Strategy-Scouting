@@ -30,4 +30,4 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.uv.workspace]
-members = ["Scouting-Scripts", "Strategy-Dashboard", "Tools"]
+members = ["Common", "Scouting-Scripts", "Strategy-Dashboard", "Tools"]

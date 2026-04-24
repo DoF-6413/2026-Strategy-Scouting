@@ -13,8 +13,8 @@ import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-import config as cfg
 from colorama import Fore, init
+from frc_6413_common import config as cfg
 from pymongo.collection import Collection
 from pymongo.database import Database
 from tqdm import tqdm
@@ -334,7 +334,10 @@ def main() -> None:
     print(status_msg)
 
     while True:
-        eventCode: str = input("Enter the event code for the event you are DEFENSE scouting (or 'quit' to exit): ").strip()
+        eventCode: str = input(
+            "Enter the event code for the event you are DEFENSE scouting"
+            "(or 'quit' to exit): "
+        ).strip()
 
         if eventCode.lower() == "quit":
             logger.info("The session was aborted at the event code prompt")
@@ -410,7 +413,11 @@ def main() -> None:
             for team_prefix in tqdm(teams, desc="Processing Teams"):
                 team_num: str = str(matchData[f"{team_prefix}teamNum"])
 
-                id_to_use = f"{eventCode}_{matchData['compLevel']}{str(matchData['matchNumber'])}_frc{team_num}"
+                # No need for str(matchData['matchNumber']) in an f-string
+                id_to_use = (
+                    f"{eventCode}_{matchData['compLevel']}"
+                    f"{matchData['matchNumber']}_frc{team_num}"
+                )
 
                 team_data: Dict[str, Any] = {
                     "defense": matchData[f"{team_prefix}defense"],
@@ -419,7 +426,11 @@ def main() -> None:
                     "docType": matchData['docType']
                 }
 
-                result = scoutingCollection.update_one({"_id": id_to_use}, {"$set": team_data}, upsert=True)
+                result = scoutingCollection.update_one(
+                    {"_id": id_to_use},
+                    {"$set": team_data},
+                    upsert=True,
+                )
 
                 if result.upserted_id:
                     logger.debug(f"Inserted data into {id_to_use} (Primary)")
@@ -429,7 +440,11 @@ def main() -> None:
                     logger.debug(f"No changes made to {id_to_use} (Primary)")
 
                 if scoutingCollection2 is not None:
-                    result = scoutingCollection2.update_one({'_id': id_to_use}, {"$set": team_data}, upsert=True)
+                    result = scoutingCollection2.update_one(
+                        {'_id': id_to_use},
+                        {"$set": team_data},
+                        upsert=True
+                    )
 
                     if result.upserted_id:
                         logger.debug(f"Inserted data into {id_to_use} (Secondary)")
