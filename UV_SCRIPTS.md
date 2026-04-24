@@ -4,6 +4,10 @@ This project uses uv for fast Python package management and script execution.
 
 ## Initial Setup (one-time)
 
+It is **strongly** recommended that you install the uv tool following the standalone steps outlined in the official docs [here](https://docs.astral.sh/uv/getting-started/installation/).  This works best if you are not sure if you have Python already installed or it is an older Python version.
+
+If you want to install uv using an existing Python installation then you can follow these steps:
+
 ```bash
 # Install uv if not already installed
 pip install uv
@@ -29,11 +33,11 @@ Then open `Common/frc_6413_common/credentials.py` and fill in:
 - `TBA_AUTH_KEY` — your The Blue Alliance API key from <https://www.thebluealliance.com/account>
 - `PRIMARY_CONNECTION_STRING` — `"mongodb://localhost:27017/"` for a local MongoDB, or your Atlas connection string
 
-`Common/frc_6413_common/credentials.py` is gitignored and will never be committed.
+`Common/frc_6413_common/credentials.py` is gitignored and will **never** be committed.
 
 ## Quick Reference
 
-- Always run from **repo root**
+- Always run any script from **repo root**
 - Use `uv run --package <package-name>` to activate the correct environment
 - After the first `uv sync`, scripts start immediately (no activation needed)
 - Common dependencies are deduplicated across packages automatically
