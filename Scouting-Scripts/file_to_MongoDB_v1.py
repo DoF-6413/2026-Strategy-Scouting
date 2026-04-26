@@ -302,7 +302,7 @@ def getEntriesFromFile(file_name: str) -> List[dict] | None:
     logger: logging.Logger = get_logger()
 
     try:
-        with open(file_name, "r", encoding="utf8") as f:
+        with open(file_name, "r", encoding="utf-8") as f:
             data: List[dict] = json.load(f)
 
             if len(data) == 0:
