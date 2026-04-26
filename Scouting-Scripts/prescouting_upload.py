@@ -39,7 +39,7 @@ def process_notes_file(input_file: str, event_code: str) -> Optional[List[Dict[s
         None if an error occurs during file processing.
     """
     try:
-        with open(input_file, "r", encoding="utf8") as file:
+        with open(input_file, "r", encoding="utf-8") as file:
             input_text: str = file.read()
     except FileNotFoundError:
         print(f"Error: File '{input_file}' not found.")
