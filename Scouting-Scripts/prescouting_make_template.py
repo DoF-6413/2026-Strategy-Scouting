@@ -459,7 +459,7 @@ if __name__ == "__main__":
                 "(excluding file extension)? "
             ).strip()
             try:  # wrap file opening in try/except to handle potential errors
-                with open(output_file_name + ".md", "w+") as file:
+                with open(output_file_name + ".md", "w+", encoding="utf-8") as file:
                     write_template(
                         file,
                         teams,
