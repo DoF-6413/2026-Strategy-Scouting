@@ -393,7 +393,7 @@ def main() -> None:
 
     # Validate team key format
     if not team_key.lower().startswith("frc"):
-        print(f"{Fore.RED}ERROR: Team key must be in TBA format (e.g frc6413). Got: '{team_key}'")
+        print(f"{Fore.RED}ERROR: Team key must be in TBA format (e.g. frc6413). Got: '{team_key}'")
         sys.exit(1)
 
     logger.info(f"event={event_code} team={team_key} match={match_key}")
