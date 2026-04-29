@@ -183,5 +183,55 @@ def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
     return None
 
 
+###############################################################################
+###############################################################################
+def main() -> None:
+    logger: logging.Logger = get_logger()
+    init(autoreset=True, convert=True)
+    validate_configuration()
+
+    parser = argparse.ArgumentParser(
+        description="Show pre-scouting breakdown for a match from MongoDB."
+    )
+    parser.add_argument("-e", "--event", help="TBA event code (e.g. 2026nvlv)")
+    parser.add_argument("-t", "--team", help="Full TBA team key (e.g. frc6413)")
+    parser.add_argument(
+        "-m", "--match", help="Match number in TBA format (e.g. qm5, sf2m1, f1m2)"
+    )
+    args = parser.parse_args()
+
+    event_code: str = args.event.strip() if args.event else ""
+    if not event_code:
+        event_code = input("Enter the event code (or 'quit' to exit): ").strip()
+        if event_code.lower() == "quit":
+            logger.info("Session aborted at event code prompt")
+            sys.exit(0)
+
+    team_key: str = args.team.strip() if args.team else ""
+    if not team_key:
+        team_key = input(
+            "Enter the full TBA team key (e.g. frc6413) (or 'quit' to exit): "
+        ).strip()
+        if team_key.lower() == "quit":
+            logger.info("Session aborted at team key prompt")
+            sys.exit(0)
+
+    match_key: str = args.match.strip() if args.match else ""
+    if not match_key:
+        match_key = input(
+            "Enter the match number in TBA format (e.g. qm5, sf2m1) (or 'quit' to exit): "
+        ).strip()
+        if match_key.lower() == "quit":
+            logger.info("Session aborted at match key prompt")
+            sys.exit(0)
+
+    logger.info(f"event={event_code} team={team_key} match={match_key}")
+
+
+###############################################################################
+###############################################################################
+#                  Main starting point for the script
+###############################################################################
+###############################################################################
 if __name__ == "__main__":
-    pass
+    main()
