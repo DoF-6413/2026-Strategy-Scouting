@@ -322,7 +322,7 @@ def print_opponent_block(
     Print Weaknesses and Observations for each opponent.
     Fields with no text are silently skipped — no label, no placeholder.
     "No data" is only shown when the team has no prescout document at all,
-    or when both Weaknesses and Observations are empty strings.
+    or when both Weaknesses and Observations are absent or empty.
     """
     print(f"{Fore.RED}=== OPPOSING ALLIANCE ==={Style.RESET_ALL}\n")
 
