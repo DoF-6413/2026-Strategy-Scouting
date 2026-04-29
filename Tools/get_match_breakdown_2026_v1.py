@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
-from colorama import Fore, init
+from colorama import Fore, Style, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
 from pymongo.collection import Collection
@@ -264,11 +264,13 @@ def get_prescout(
     team_number: str = team_key[3:]  # strip leading 'frc'
     scouting_collection: Collection = db[cfg.V5_COL_SCOUTING]
     try:
-        doc = scouting_collection.find_one({
-            "docType": cfg.DT_SCOUTING_PRESCOUT,
-            "eventCode": event_code,
-            "team": team_number,
-        })
+        doc = scouting_collection.find_one(
+            {
+                "docType": cfg.DT_SCOUTING_PRESCOUT,
+                "eventCode": event_code,
+                "team": team_number,
+            }
+        )
         if doc:
             return doc.get("notes", {})
         return None
@@ -277,6 +279,37 @@ def get_prescout(
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
         return None
+
+
+###############################################################################
+###############################################################################
+def print_alliance_block(
+    team_key: str,
+    partners: List[str],
+    prescout_map: Dict[str, Optional[Dict[str, str]]],
+) -> None:
+    """
+    Print Strengths for the queried team (labeled YOUR TEAM) and its partners.
+    Shows "No data" in yellow if the team has no prescout document or
+    if the Strengths field is empty.
+    """
+    print(f"{Fore.BLUE}=== YOUR ALLIANCE ==={Style.RESET_ALL}\n")
+
+    for tk in [team_key] + partners:
+        display_num: str = tk[3:]  # strip 'frc'
+        label: str = " (YOUR TEAM)" if tk == team_key else ""
+        print(f"{Fore.BLUE}[{display_num}]{label}{Style.RESET_ALL}")
+
+        notes = prescout_map.get(tk)
+        if notes is None:
+            print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
+        else:
+            strengths: str = notes.get("Strengths", "").strip()
+            if strengths:
+                print(f"  {strengths}")
+            else:
+                print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
+        print()
 
 
 ###############################################################################
@@ -388,6 +421,8 @@ def main() -> None:
     prescout_map: Dict[str, Optional[Dict[str, str]]] = {
         tk: get_prescout(db, event_code, tk) for tk in all_teams
     }
+
+    print_alliance_block(team_key, partners, prescout_map)
 
 
 ###############################################################################
