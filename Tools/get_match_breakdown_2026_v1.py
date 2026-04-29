@@ -10,15 +10,13 @@
 import argparse
 import logging
 import os
-import re
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 
-from colorama import Fore, Style, init
+from colorama import Fore, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
-from pymongo.collection import Collection
 from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None
@@ -186,6 +184,10 @@ def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
 ###############################################################################
 ###############################################################################
 def main() -> None:
+    """
+    Parse CLI args (or prompt interactively) for event code, team key, and
+    match number, then display pre-scouting breakdown from MongoDB.
+    """
     logger: logging.Logger = get_logger()
     init(autoreset=True, convert=True)
     validate_configuration()
