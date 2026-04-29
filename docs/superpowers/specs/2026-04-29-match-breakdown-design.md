@@ -70,42 +70,47 @@ as `None` and "No data" is displayed.
 Two blocks printed to the terminal using colorama colors:
 
 ### Alliance Block (blue header)
+
+No field labels are shown — just the Strengths text directly, or "No data" if missing.
+
 ```
 === YOUR ALLIANCE ===
 
 [6413] (YOUR TEAM)
-  Strengths:
-    <text, or "No data" in yellow>
+  <strengths text, or "No data" in yellow>
 
 [1234]
-  Strengths:
-    <text, or "No data" in yellow>
+  <strengths text, or "No data" in yellow>
 
 [5678]
-  Strengths:
-    <text, or "No data" in yellow>
+  <strengths text, or "No data" in yellow>
 ```
 
 ### Opponent Block (red header)
+
+No field labels are shown. Each non-empty field (Weaknesses, Observations) is printed
+as its own indented block separated by a blank line. If a field has no text it is
+silently skipped — "No data" is only shown when the team has **no prescout document at
+all** (i.e. both fields are empty/absent).
+
 ```
 === OPPOSING ALLIANCE ===
 
 [254]
-  Weaknesses:
-    <text, or "No data" in yellow>
-  Observations:
-    <text, or "No data" in yellow>
+  <weaknesses text>
+
+  <observations text>
 
 [1114]
-  ...
+  No data                    ← both fields absent
 
 [2056]
-  ...
+  <observations text only, weaknesses absent — skipped silently>
 ```
 
 - All team numbers are displayed without the `frc` prefix.
 - Team headers for alliance teams are printed in blue; opponent team headers in red.
-- "No data" is printed in yellow.
+- "No data" is printed in yellow, only when no prescout data exists for the team at all.
 - The "YOUR TEAM" label distinguishes the queried team from its alliance partners.
 - If the match is not found in MongoDB, a red error message is printed and the script exits.
 
