@@ -7,15 +7,18 @@
 #   uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v1.py \
 #       -e 2026nvlv -t frc6413 -m qm5
 
+import argparse
 import logging
 import os
+import re
 import sys
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
-from colorama import Fore
+from colorama import Fore, Style, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
 from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None
@@ -37,9 +40,7 @@ def setup_logger() -> logging.Logger:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             log_file_path = os.path.join(script_dir, log_file)
             handler = logging.FileHandler(log_file_path)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             handler.setFormatter(formatter)
             _logger.addHandler(handler)
     return _logger
@@ -87,13 +88,13 @@ def check_config_params(cfg: object, params: List[str]) -> bool:
 ###############################################################################
 ###############################################################################
 def is_V5_configuration_bad() -> bool:
-    '''
+    """
     Tell the caller if any V5 schema specific configuration information is
         bad or missing.
 
     Returns:
         bool: True if any V5 schema values are missing or empty, False otherwise.
-    '''
+    """
     v5_values_to_check = [
         "DB_NAME",
         "V5_COL_DATA",
@@ -126,12 +127,12 @@ def is_V5_configuration_bad() -> bool:
 ###############################################################################
 ###############################################################################
 def validate_configuration() -> None:
-    '''
+    """
     Validate that the necessary configuration and credential information exists.
 
     First do credential checks and then do schema specific checks.  We only check
     the current schema and not all possible schemas.
-    '''
+    """
     badConfig: bool = False
     badV5Config: bool = False
     logger: logging.Logger = get_logger()
@@ -153,7 +154,7 @@ def validate_configuration() -> None:
 ###############################################################################
 ###############################################################################
 def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
-    '''
+    """
     Returns a MongoDB database to read/write the all your data from/into OR
         None if there was a problem accessing the database.
 
@@ -164,7 +165,7 @@ def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
 
     Returns:
         A Database if we connected successfully, None if we failed for any reason!
-    '''
+    """
     from pymongo import MongoClient
 
     logger: logging.Logger = get_logger()
