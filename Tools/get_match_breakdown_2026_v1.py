@@ -7,24 +7,27 @@
 #   uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v1.py \
 #       -e 2026nvlv -t frc6413 -m qm5
 
-import argparse
 import logging
 import os
-import re
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 
-from colorama import Fore, Style, init
+from colorama import Fore
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
-from pymongo.collection import Collection
 from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None
 
 
+###############################################################################
+###############################################################################
 def setup_logger() -> logging.Logger:
+    """
+    Sets up a logger that saves any log output to a file in the script's
+    directory, with a filename based on the current date and time.
+    """
     global _logger
     if _logger is None:
         _logger = logging.getLogger(__name__)
@@ -42,14 +45,33 @@ def setup_logger() -> logging.Logger:
     return _logger
 
 
+###############################################################################
+###############################################################################
 def get_logger() -> logging.Logger:
+    """
+    Returns the scripts logger, initializing it if it hasn't been already.
+    """
     global _logger
     if _logger is None:
         _logger = setup_logger()
     return _logger
 
 
+###############################################################################
+###############################################################################
 def check_config_params(cfg: object, params: List[str]) -> bool:
+    """
+    Check if multiple configuration parameters exist and are non-empty strings
+    in the given cfg object.
+
+    Parameters:
+        cfg: The configuration module (e.g., the imported 'config' module).
+
+        params: A list of parameter names to check for (strings).
+
+    Returns:
+        True if any parameter is missing or empty, False otherwise.
+    """
     badConfig: bool = False
     logger: logging.Logger = get_logger()
     for param_name in params:
@@ -62,7 +84,16 @@ def check_config_params(cfg: object, params: List[str]) -> bool:
     return badConfig
 
 
+###############################################################################
+###############################################################################
 def is_V5_configuration_bad() -> bool:
+    '''
+    Tell the caller if any V5 schema specific configuration information is
+        bad or missing.
+
+    Returns:
+        bool: True if any V5 schema values are missing or empty, False otherwise.
+    '''
     v5_values_to_check = [
         "DB_NAME",
         "V5_COL_DATA",
@@ -92,8 +123,17 @@ def is_V5_configuration_bad() -> bool:
     return check_config_params(cfg, v5_values_to_check)
 
 
+###############################################################################
+###############################################################################
 def validate_configuration() -> None:
+    '''
+    Validate that the necessary configuration and credential information exists.
+
+    First do credential checks and then do schema specific checks.  We only check
+    the current schema and not all possible schemas.
+    '''
     badConfig: bool = False
+    badV5Config: bool = False
     logger: logging.Logger = get_logger()
     if not (hasattr(creds, "PRIMARY_CONNECTION_STRING") and creds.PRIMARY_CONNECTION_STRING):
         err_msg: str = "ERROR: PRIMARY_CONNECTION_STRING is missing or empty!"
@@ -110,7 +150,21 @@ def validate_configuration() -> None:
         sys.exit(2)
 
 
-def get_database(database_uri: str, database_name: str) -> Optional[Database]:
+###############################################################################
+###############################################################################
+def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
+    '''
+    Returns a MongoDB database to read/write the all your data from/into OR
+        None if there was a problem accessing the database.
+
+    Parameters:
+        database_uri (str): The database connection URL to use
+
+        database_name (str): The name of the database to access
+
+    Returns:
+        A Database if we connected successfully, None if we failed for any reason!
+    '''
     from pymongo import MongoClient
 
     logger: logging.Logger = get_logger()
