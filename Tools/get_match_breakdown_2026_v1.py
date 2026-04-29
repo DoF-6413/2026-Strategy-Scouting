@@ -245,6 +245,42 @@ def get_match(
 
 ###############################################################################
 ###############################################################################
+def get_prescout(
+    db: Database,
+    event_code: str,
+    team_key: str,
+) -> Optional[Dict[str, str]]:
+    """
+    Retrieve pre-scouting notes for a team at an event.
+
+    team_key is the full TBA key (e.g. 'frc6413'). The 'frc' prefix is
+    stripped internally to match how prescouting_upload.py stores the
+    'team' field (bare number string, e.g. '6413').
+
+    Returns the notes dict (e.g. {'Strengths': '...', 'Weaknesses': '...'})
+    or None if no document exists for this team/event.
+    """
+    logger: logging.Logger = get_logger()
+    team_number: str = team_key[3:]  # strip leading 'frc'
+    scouting_collection: Collection = db[cfg.V5_COL_SCOUTING]
+    try:
+        doc = scouting_collection.find_one({
+            "docType": cfg.DT_SCOUTING_PRESCOUT,
+            "eventCode": event_code,
+            "team": team_number,
+        })
+        if doc:
+            return doc.get("notes", {})
+        return None
+    except Exception as e:
+        err_msg: str = f"ERROR: Failed to query scouting collection: {e}"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        return None
+
+
+###############################################################################
+###############################################################################
 def main() -> None:
     """
     Parse CLI args (or prompt interactively) for event code, team key, and
@@ -346,6 +382,12 @@ def main() -> None:
         sys.exit(1)
 
     partners: List[str] = [t for t in alliance_teams if t != team_key]
+
+    # Fetch prescout notes for all 6 teams (ours + 2 partners + 3 opponents)
+    all_teams: List[str] = alliance_teams + opponent_teams
+    prescout_map: Dict[str, Optional[Dict[str, str]]] = {
+        tk: get_prescout(db, event_code, tk) for tk in all_teams
+    }
 
 
 ###############################################################################
