@@ -285,6 +285,11 @@ def main() -> None:
             logger.info("Session aborted at match key prompt")
             sys.exit(0)
 
+    # Validate team key format
+    if not team_key.lower().startswith("frc"):
+        print(f"{Fore.RED}ERROR: Team key must be in TBA format (e.g frc6413). Got: '{team_key}'")
+        sys.exit(1)
+
     logger.info(f"event={event_code} team={team_key} match={match_key}")
 
     # Parse the match key into query components
@@ -314,8 +319,17 @@ def main() -> None:
         sys.exit(1)
 
     # Determine which alliance the team is on
-    blue_teams: List[str] = match_doc["alliances"]["blue"]["team_keys"]
-    red_teams: List[str] = match_doc["alliances"]["red"]["team_keys"]
+    try:
+        blue_teams: List[str] = match_doc["alliances"]["blue"]["team_keys"]
+        red_teams: List[str] = match_doc["alliances"]["red"]["team_keys"]
+    except KeyError:
+        err_msg: str = (
+            f"Match '{match_key}' for event '{event_code}' has unexpected data "
+            "structure (missing alliance team keys)."
+        )
+        logger.error(err_msg)
+        print(f"{Fore.RED}ERROR: {err_msg}")
+        sys.exit(1)
 
     if team_key in blue_teams:
         alliance_teams = blue_teams
