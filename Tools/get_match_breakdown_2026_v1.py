@@ -314,6 +314,43 @@ def print_alliance_block(
 
 ###############################################################################
 ###############################################################################
+def print_opponent_block(
+    opponents: List[str],
+    prescout_map: Dict[str, Optional[Dict[str, str]]],
+) -> None:
+    """
+    Print Weaknesses and Observations for each opponent.
+    Fields with no text are silently skipped — no label, no placeholder.
+    "No data" is only shown when the team has no prescout document at all,
+    or when both Weaknesses and Observations are empty strings.
+    """
+    print(f"{Fore.RED}=== OPPOSING ALLIANCE ==={Style.RESET_ALL}\n")
+
+    for tk in opponents:
+        display_num: str = tk[3:]  # strip 'frc'
+        print(f"{Fore.RED}[{display_num}]{Style.RESET_ALL}")
+
+        notes = prescout_map.get(tk)
+        if notes is None:
+            print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
+        else:
+            weaknesses: str = notes.get("Weaknesses", "").strip()
+            observations: str = notes.get("Observations", "").strip()
+
+            if not weaknesses and not observations:
+                print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
+            else:
+                if weaknesses:
+                    print(f"  {weaknesses}")
+                if weaknesses and observations:
+                    print()
+                if observations:
+                    print(f"  {observations}")
+        print()
+
+
+###############################################################################
+###############################################################################
 def main() -> None:
     """
     Parse CLI args (or prompt interactively) for event code, team key, and
@@ -423,6 +460,7 @@ def main() -> None:
     }
 
     print_alliance_block(team_key, partners, prescout_map)
+    print_opponent_block(opponent_teams, prescout_map)
 
 
 ###############################################################################
