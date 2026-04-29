@@ -10,13 +10,15 @@
 import argparse
 import logging
 import os
+import re
 import sys
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from colorama import Fore, init
 from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
+from pymongo.collection import Collection
 from pymongo.database import Database
 
 _logger: Optional[logging.Logger] = None
@@ -183,6 +185,66 @@ def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
 
 ###############################################################################
 ###############################################################################
+def parse_match_key(match_key: str) -> Tuple[str, int, int]:
+    """
+    Parse a TBA match key into (comp_level, set_number, match_number).
+
+    Supported formats:
+        qm5    -> ('qm', 1, 5)
+        sf2m1  -> ('sf', 2, 1)
+        f1m2   -> ('f', 1, 2)
+        qf1m1  -> ('qf', 1, 1)
+
+    Raises ValueError on unrecognized format.
+    """
+    key = match_key.lower().strip()
+
+    m = re.match(r"^(qm)(\d+)$", key)
+    if m:
+        return "qm", 1, int(m.group(2))
+
+    m = re.match(r"^(sf|qf|f)(\d+)m(\d+)$", key)
+    if m:
+        return m.group(1), int(m.group(2)), int(m.group(3))
+
+    raise ValueError(
+        f"Unrecognized match key format: '{match_key}'. Expected formats: qm5, sf2m1, f1m2, qf1m1"
+    )
+
+
+###############################################################################
+###############################################################################
+def get_match(
+    db: Database,
+    event_code: str,
+    comp_level: str,
+    set_number: int,
+    match_number: int,
+) -> Optional[Dict]:
+    """
+    Retrieve a specific match document from the matches collection.
+    Returns the document dict or None if not found.
+    """
+    logger: logging.Logger = get_logger()
+    match_collection: Collection = db[cfg.V5_COL_MATCH]
+    try:
+        return match_collection.find_one(
+            {
+                "event_key": event_code,
+                "comp_level": comp_level,
+                "set_number": set_number,
+                "match_number": match_number,
+            }
+        )
+    except Exception as e:
+        err_msg: str = f"ERROR: Failed to query matches collection: {e}"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        return None
+
+
+###############################################################################
+###############################################################################
 def main() -> None:
     """
     Parse CLI args (or prompt interactively) for event code, team key, and
@@ -197,9 +259,7 @@ def main() -> None:
     )
     parser.add_argument("-e", "--event", help="TBA event code (e.g. 2026nvlv)")
     parser.add_argument("-t", "--team", help="Full TBA team key (e.g. frc6413)")
-    parser.add_argument(
-        "-m", "--match", help="Match number in TBA format (e.g. qm5, sf2m1, f1m2)"
-    )
+    parser.add_argument("-m", "--match", help="Match number in TBA format (e.g. qm5, sf2m1, f1m2)")
     args = parser.parse_args()
 
     event_code: str = args.event.strip() if args.event else ""
@@ -211,9 +271,7 @@ def main() -> None:
 
     team_key: str = args.team.strip() if args.team else ""
     if not team_key:
-        team_key = input(
-            "Enter the full TBA team key (e.g. frc6413) (or 'quit' to exit): "
-        ).strip()
+        team_key = input("Enter the full TBA team key (e.g. frc6413) (or 'quit' to exit): ").strip()
         if team_key.lower() == "quit":
             logger.info("Session aborted at team key prompt")
             sys.exit(0)
@@ -228,6 +286,52 @@ def main() -> None:
             sys.exit(0)
 
     logger.info(f"event={event_code} team={team_key} match={match_key}")
+
+    # Parse the match key into query components
+    try:
+        comp_level, set_number, match_number = parse_match_key(match_key)
+    except ValueError as e:
+        print(f"{Fore.RED}ERROR: {e}")
+        sys.exit(1)
+
+    # Connect to primary MongoDB
+    db: Database = get_database(creds.PRIMARY_CONNECTION_STRING, cfg.DB_NAME)
+    if db is None:
+        err_msg: str = "Failed to connect to the primary database. Exiting!"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        sys.exit(1)
+
+    # Look up the match document
+    match_doc = get_match(db, event_code, comp_level, set_number, match_number)
+    if match_doc is None:
+        err_msg: str = (
+            f"Match '{match_key}' not found for event '{event_code}' in MongoDB. "
+            "Make sure match data has been downloaded with get_event_matches_2026_v2.py."
+        )
+        logger.error(err_msg)
+        print(f"{Fore.RED}ERROR: {err_msg}")
+        sys.exit(1)
+
+    # Determine which alliance the team is on
+    blue_teams: List[str] = match_doc["alliances"]["blue"]["team_keys"]
+    red_teams: List[str] = match_doc["alliances"]["red"]["team_keys"]
+
+    if team_key in blue_teams:
+        alliance_teams = blue_teams
+        opponent_teams = red_teams
+    elif team_key in red_teams:
+        alliance_teams = red_teams
+        opponent_teams = blue_teams
+    else:
+        err_msg: str = (
+            f"Team '{team_key}' is not listed in match '{match_key}' for event '{event_code}'."
+        )
+        logger.error(err_msg)
+        print(f"{Fore.RED}ERROR: {err_msg}")
+        sys.exit(1)
+
+    partners: List[str] = [t for t in alliance_teams if t != team_key]
 
 
 ###############################################################################
