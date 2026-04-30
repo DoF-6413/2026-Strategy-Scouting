@@ -293,7 +293,7 @@ def print_alliance_block(
     Shows "No data" in yellow if the team has no prescout document or
     if the Strengths field is empty.
     """
-    print(f"{Fore.BLUE}=== YOUR ALLIANCE ==={Style.RESET_ALL}\n")
+    print(f"{Fore.BLUE}Our alliance:{Style.RESET_ALL}\n")
 
     for tk in [team_key] + partners:
         display_num: str = tk[3:]  # strip 'frc'
@@ -323,7 +323,7 @@ def print_opponent_block(
     "No data" is only shown when the team has no prescout document at all,
     or when both Weaknesses and Observations are absent or empty.
     """
-    print(f"{Fore.RED}=== OPPOSING ALLIANCE ==={Style.RESET_ALL}\n")
+    print(f"{Fore.RED}Opponents:{Style.RESET_ALL}\n")
 
     for tk in opponents:
         display_num: str = tk[3:]  # strip 'frc'
