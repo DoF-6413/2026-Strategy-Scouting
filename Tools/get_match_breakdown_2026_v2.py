@@ -289,7 +289,7 @@ def print_alliance_block(
     prescout_map: Dict[str, Optional[Dict[str, str]]],
 ) -> None:
     """
-    Print Strengths for the queried team (labeled YOUR TEAM) and its partners.
+    Print Strengths for the queried team and its partners.
     Shows "No data" in yellow if the team has no prescout document or
     if the Strengths field is empty.
     """
@@ -297,8 +297,7 @@ def print_alliance_block(
 
     for tk in [team_key] + partners:
         display_num: str = tk[3:]  # strip 'frc'
-        label: str = " (YOUR TEAM)" if tk == team_key else ""
-        print(f"{Fore.BLUE}[{display_num}]{label}{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}{display_num}{Style.RESET_ALL}")
 
         notes = prescout_map.get(tk)
         if notes is None:
@@ -328,7 +327,7 @@ def print_opponent_block(
 
     for tk in opponents:
         display_num: str = tk[3:]  # strip 'frc'
-        print(f"{Fore.RED}[{display_num}]{Style.RESET_ALL}")
+        print(f"{Fore.RED}{display_num}{Style.RESET_ALL}")
 
         notes = prescout_map.get(tk)
         if notes is None:
