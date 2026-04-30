@@ -42,7 +42,7 @@ uv.lock
 .python-version
 
 # Python module files
-*/__pycache__
+**/__pycache__
 
 # PIP Installer logs
 pip-log.txt
