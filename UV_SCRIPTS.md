@@ -60,10 +60,10 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 | Find Missing Data | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/find_missing_data.py` |
 
 **Or use the batch files (Windows):**
-- `Scouting Match Scan.bat` - Match scouting
-- `Scouting Defense Scan.bat` - Defense scouting
+- `ScoutingMatchScan.bat` - Match scouting
+- `ScoutingDefenseScan.bat` - Defense scouting
 
-**NOTE:** Drag and drop the BATch files to your Desktop to easily launch the scripts without needing to open a command prompt first.
+**NOTE:** Drag and drop the BATch files to your Desktop to easily launch the scripts without needing to open a command prompt first.  You can rename the BATch files to have spaces if you put them on your Desktop so they are more readable when sitting side by side.  Bonus points if you change the Desktop icons to make them different and visually distinct.
 
 ### Strategy-Dashboard
 
