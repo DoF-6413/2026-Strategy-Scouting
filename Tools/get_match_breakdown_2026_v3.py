@@ -317,6 +317,7 @@ def print_alliance_block(
     team_key: str,
     partners: List[str],
     prescout_map: Dict[str, Optional[Dict[str, str]]],
+    epa_map: Dict[str, Optional[float]],
 ) -> None:
     """
     Print Strengths for the queried team and its partners.
@@ -327,7 +328,7 @@ def print_alliance_block(
 
     for tk in [team_key] + partners:
         display_num: str = tk[3:]  # strip 'frc'
-        print(f"{Fore.BLUE}{display_num}{Style.RESET_ALL}")
+        print(f"{Fore.BLUE}{display_num}{epa_suffix(epa_map.get(tk))}{Style.RESET_ALL}")
 
         notes = prescout_map.get(tk)
         if notes is None:
@@ -346,6 +347,7 @@ def print_alliance_block(
 def print_opponent_block(
     opponents: List[str],
     prescout_map: Dict[str, Optional[Dict[str, str]]],
+    epa_map: Dict[str, Optional[float]],
 ) -> None:
     """
     Print Weaknesses and Observations for each opponent.
@@ -357,7 +359,7 @@ def print_opponent_block(
 
     for tk in opponents:
         display_num: str = tk[3:]  # strip 'frc'
-        print(f"{Fore.RED}{display_num}{Style.RESET_ALL}")
+        print(f"{Fore.RED}{display_num}{epa_suffix(epa_map.get(tk))}{Style.RESET_ALL}")
 
         notes = prescout_map.get(tk)
         if notes is None:
@@ -483,8 +485,13 @@ def main() -> None:
         tk: get_prescout(db, event_code, tk) for tk in all_teams
     }
 
-    print_alliance_block(team_key, partners, prescout_map)
-    print_opponent_block(opponent_teams, prescout_map)
+    # Fetch EPA values for all 6 teams
+    epa_map: Dict[str, Optional[float]] = {
+        tk: get_epa(int(tk[3:])) for tk in all_teams
+    }
+
+    print_alliance_block(team_key, partners, prescout_map, epa_map)
+    print_opponent_block(opponent_teams, prescout_map, epa_map)
 
 
 ###############################################################################
