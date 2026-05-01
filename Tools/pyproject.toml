@@ -9,6 +9,7 @@ dependencies = [
     "tba-api-v3client @ git+https://github.com/TBA-API/tba-api-client-python@4f6ded8fb4bf8f7896891a9aa778ce15a2ef720b",
     "colorama>=0.4.6",
     "tqdm>=4.66.0",
+    "statbotics>=3.0.0",
 ]
 
 [tool.uv.sources]
