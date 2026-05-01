@@ -22,6 +22,7 @@ from frc_6413_common import config as cfg
 from frc_6413_common import credentials as creds
 from pymongo.collection import Collection
 from pymongo.database import Database
+from tqdm import tqdm
 
 _logger: Optional[logging.Logger] = None
 
@@ -490,7 +491,10 @@ def main() -> None:
     }
 
     # Fetch EPA values for all 6 teams
-    epa_map: Dict[str, Optional[float]] = {tk: get_epa(int(tk[3:])) for tk in all_teams}
+    print("Fetching current Statbotics EPA data...")
+    epa_map: Dict[str, Optional[float]] = {
+        tk: get_epa(int(tk[3:])) for tk in tqdm(all_teams, unit="team")
+    }
 
     print_alliance_block(team_key, partners, prescout_map, epa_map)
     print_opponent_block(opponent_teams, prescout_map, epa_map)
