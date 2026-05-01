@@ -86,7 +86,8 @@ All Tools scripts are run from the **repo root**:
 | Get Event List of Teams | `uv run --package frc-6413-scouting-tools python Tools/get_event_list_of_teams_2025_v1.py` |
 | Get Event Teams Simple | `uv run --package frc-6413-scouting-tools python Tools/get_event_teams_simple_2025_v1.py` |
 | Get Event Schedule from MongoDB | `uv run --package frc-6413-scouting-tools python Tools/get_event_schedule_from_mongodb_2025_v1.py` |
-| Get Match Breakdown | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v1.py` |
+| Get Match Breakdown | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v2.py` |
+| Get Match Breakdown (with EPA) | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v3.py` |
 
 ## Code Quality (Ruff)
 

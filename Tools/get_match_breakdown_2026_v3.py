@@ -486,9 +486,7 @@ def main() -> None:
     }
 
     # Fetch EPA values for all 6 teams
-    epa_map: Dict[str, Optional[float]] = {
-        tk: get_epa(int(tk[3:])) for tk in all_teams
-    }
+    epa_map: Dict[str, Optional[float]] = {tk: get_epa(int(tk[3:])) for tk in all_teams}
 
     print_alliance_block(team_key, partners, prescout_map, epa_map)
     print_opponent_block(opponent_teams, prescout_map, epa_map)
