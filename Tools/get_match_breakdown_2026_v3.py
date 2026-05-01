@@ -438,6 +438,9 @@ def main() -> None:
         err_msg: str = "Failed to connect to the primary database. Exiting!"
         logger.error(err_msg)
         print(f"{Fore.RED}{err_msg}")
+        err_msg = "Did you start the MongoDB server or use the wrong URL?!"
+        logger.error(err_msg)
+        print(f"{Fore.YELLOW}{err_msg}")
         sys.exit(1)
 
     # Look up the match document
