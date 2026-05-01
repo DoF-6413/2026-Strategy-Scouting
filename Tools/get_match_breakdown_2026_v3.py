@@ -338,7 +338,7 @@ def print_alliance_block(
         else:
             strengths: str = notes.get("Strengths", "").strip()
             if strengths:
-                print(f"  {strengths}")
+                print("  " + strengths.replace("\n", "\n  "))
             else:
                 print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
         print()
@@ -374,11 +374,11 @@ def print_opponent_block(
                 print(f"  {Fore.YELLOW}No data{Style.RESET_ALL}")
             else:
                 if weaknesses:
-                    print(f"  {weaknesses}")
+                    print("  " + weaknesses.replace("\n", "\n  "))
                 if weaknesses and observations:
                     print()
                 if observations:
-                    print(f"  {observations}")
+                    print("  " + observations.replace("\n", "\n  "))
         print()
 
 
