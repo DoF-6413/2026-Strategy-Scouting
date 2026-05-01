@@ -200,7 +200,8 @@ def get_database(database_uri: str, database_name: str) -> Optional["Database"]:
 
     logger: logging.Logger = get_logger()
     try:
-        client: MongoClient = MongoClient(database_uri)
+        client: MongoClient = MongoClient(database_uri, serverSelectionTimeoutMS=5000)
+        client.admin.command("ping")
         return client[database_name]
     except ConnectionError as e:
         err_msg: str = f"ERROR: Failed to connect to MongoDB server: {e}"
