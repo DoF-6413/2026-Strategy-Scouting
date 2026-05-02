@@ -1,7 +1,12 @@
 # A Python script that retrieves alliance and opponent pre-scouting notes
 # from MongoDB for a specific match, giving the strategy team a quick
 # breakdown before a match. Defaults team to frc6413 when not specified.
-# Shows each team's Statbotics norm_epa['current'] value next to their number.
+#
+# This is an updated version of get_match_breakdown_2026_v2.py.
+# Changes include:
+#
+# 1: Show each team's Statbotics current EPA value next to their number.
+# 2: Fix indenting of multi line data
 #
 # Usage:
 #   uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v3.py
@@ -449,7 +454,7 @@ def main() -> None:
     if match_doc is None:
         err_msg: str = (
             f"Match '{match_key}' not found for event '{event_code}' in MongoDB. "
-            "Make sure match data has been downloaded with get_event_matches_2026_v2.py."
+            "Make sure match data has been downloaded with get_event_matches_2026_v3.py."
         )
         logger.error(err_msg)
         print(f"{Fore.RED}ERROR: {err_msg}")

@@ -192,7 +192,7 @@ The data collected from the Scouting App is collected using QR codes, a barcode 
 
 To run the data collection script, use uv from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
-**uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026.py**
+**uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026_v2.py**
 
 From there, simply enter the TBA event code for the event you are collecting data for and then start scanning QR codes to collect data.
 

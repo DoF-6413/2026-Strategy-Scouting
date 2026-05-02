@@ -50,10 +50,10 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 
 | Script | Command |
 |--------|---------|
-| Match Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026.py` |
-| Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/defense_scouting_2026.py` |
-| Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2026.py` |
-| Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2026.py` |
+| Match Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026_v2.py` |
+| Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/defense_scouting_2026_v2.py` |
+| Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2026_v2.py` |
+| Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2026_v2.py` |
 | Pre-scouting Template | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py` |
 | Pre-scouting Upload | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_upload.py` |
 | File to MongoDB | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/file_to_MongoDB_v1.py` |
@@ -82,10 +82,10 @@ All Tools scripts are run from the **repo root**:
 |--------|---------|
 | Random Data Generator | `uv run --package frc-6413-scouting-tools python Tools/RandomData2026_v2.py` |
 | MongoDB to MongoDB | `uv run --package frc-6413-scouting-tools python Tools/MongoDB_to_MongoDB_v1.py` |
-| Get Event Matches (2026) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2026_v1.py` |
+| Get Event Matches (2026) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2026_v3.py` |
 | Get Event List of Teams | `uv run --package frc-6413-scouting-tools python Tools/get_event_list_of_teams_2025_v1.py` |
 | Get Event Teams Simple | `uv run --package frc-6413-scouting-tools python Tools/get_event_teams_simple_2025_v1.py` |
-| Get Event Schedule from MongoDB | `uv run --package frc-6413-scouting-tools python Tools/get_event_schedule_from_mongodb_2025_v1.py` |
+| Get Event Schedule from MongoDB | `uv run --package frc-6413-scouting-tools python Tools/get_event_schedule_from_mongodb_2026_v2.py` |
 | Get Match Breakdown | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v2.py` |
 | Get Match Breakdown (with EPA) | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v3.py` |
 
@@ -102,8 +102,8 @@ Run from the **repo root**:
 
 Scope to a single file:
 ```bash
-uv run ruff check Scouting-Scripts/scouting_2026.py
-uv run ruff format Scouting-Scripts/scouting_2026.py
+uv run ruff check Scouting-Scripts/scouting_2026_v2.py
+uv run ruff format Scouting-Scripts/scouting_2026_v2.py
 ```
 
 ## Adding Dependencies
