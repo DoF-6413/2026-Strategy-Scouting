@@ -272,6 +272,53 @@ def inflate_match_data(matchData: Dict) -> Optional[Dict]:
 
 ###############################################################################
 ###############################################################################
+def inflate_defense_data(matchData: Dict) -> Optional[Dict]:
+    """
+    "Inflate" the compact defense scouting JSON keys to their full names.
+
+    Parameters:
+        matchData: Already-parsed dict with "mo" already popped off.
+
+    Returns:
+        The inflated dict, or None if any expected key was missing.
+        NOTE: _id is NOT generated here; it is generated per-team in the save loop.
+    """
+    logger = get_logger()
+
+    key_mapping = {
+        "cl": "compLevel",
+        "mn": "matchNumber",
+        "i": "scouter",
+        "r1": "r1defense",
+        "r2": "r2defense",
+        "r3": "r3defense",
+        "r4": "r1teamNum",
+        "r5": "r2teamNum",
+        "r6": "r3teamNum",
+        "b1": "b1defense",
+        "b2": "b2defense",
+        "b3": "b3defense",
+        "b4": "b1teamNum",
+        "b5": "b2teamNum",
+        "b6": "b3teamNum",
+    }
+
+    for short_key, long_key in key_mapping.items():
+        if short_key in matchData:
+            matchData[long_key] = matchData.pop(short_key)
+        else:
+            err_msg: str = f"QR code key {short_key} was NOT found!"
+            logger.error(err_msg)
+            print(f"{Fore.RED}{err_msg}")
+            return None
+
+    matchData["docType"] = cfg.DT_SCOUTING_MATCH
+
+    return matchData
+
+
+###############################################################################
+###############################################################################
 #                  Main starting point for the script
 ###############################################################################
 ###############################################################################
