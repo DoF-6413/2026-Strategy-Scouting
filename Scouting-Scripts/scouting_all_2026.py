@@ -215,6 +215,63 @@ def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
 
 ###############################################################################
 ###############################################################################
+def inflate_match_data(matchData: Dict) -> Optional[Dict]:
+    """
+    "Inflate" the compact match scouting JSON keys to their full names and
+    compute derived fields.
+
+    Parameters:
+        matchData: Already-parsed dict with "mo" already popped off.
+
+    Returns:
+        The inflated dict, or None if any expected key was missing.
+    """
+    logger = get_logger()
+
+    key_mapping = {
+        "cl": "compLevel",
+        "mn": "matchNumber",
+        "i": "scouter",
+        "a1": "autoHub",
+        "a2": "autoHubMiss",
+        "t1": "teleHub",
+        "t2": "teleHubMiss",
+        "ns": "noShow",
+        "r": "relayed",
+        "h": "herded",
+        "d": "died",
+        "co": "comments",
+    }
+
+    for short_key, long_key in key_mapping.items():
+        if short_key in matchData:
+            matchData[long_key] = matchData.pop(short_key)
+        else:
+            err_msg: str = f"QR code key {short_key} was NOT found!"
+            logger.error(err_msg)
+            print(f"{Fore.RED}{err_msg}")
+            return None
+
+    comments = matchData["comments"]
+    matchData["comments"] = re.sub(r"\s+", " ", comments.replace("\n", " ")).strip()
+
+    matchData["docType"] = cfg.DT_SCOUTING_MATCH
+    matchData["team"] = str(matchData["key"])
+    matchData["totalGamePieces"] = matchData["autoHub"] + matchData["teleHub"]
+
+    id_to_use = (
+        f"{eventCode}_"
+        f"{matchData['compLevel']}"
+        f"{matchData['matchNumber']}_frc"
+        f"{matchData['team']}"
+    )
+    matchData["_id"] = id_to_use
+
+    return matchData
+
+
+###############################################################################
+###############################################################################
 #                  Main starting point for the script
 ###############################################################################
 ###############################################################################
