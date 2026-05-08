@@ -75,6 +75,146 @@ def get_logger() -> logging.Logger:
 
 ###############################################################################
 ###############################################################################
+def check_config_params(cfg: object, params: List[str]) -> bool:
+    """
+    Check if multiple configuration parameters exist and are non-empty strings
+    in the given cfg object.
+
+    Parameters:
+        cfg: The configuration module (e.g., the imported 'config' module).
+
+        params: A list of parameter names to check for (strings).
+
+    Returns:
+        True if any parameter is missing or empty, False otherwise.
+    """
+    badConfig = False
+    logger = get_logger()
+
+    for param_name in params:
+        param_value = getattr(cfg, param_name, None)
+
+        if not param_value:
+            err_msg: str = f"ERROR: {param_name} is missing or empty!"
+            logger.error(err_msg)
+            print(f"{Fore.RED}{err_msg}")
+            badConfig = True
+
+    return badConfig
+
+
+###############################################################################
+###############################################################################
+def is_V5_configuration_bad() -> bool:
+    """
+    Tell the caller if any V5 schema specific configuration information is
+        bad or missing.
+
+    Returns:
+        bool: True if any V5 schema values are missing or empty, False otherwise.
+    """
+    v5_values_to_check = [
+        "DB_NAME",
+        "V5_COL_DATA",
+        "V5_COL_EVENTS",
+        "V5_COL_MATCH",
+        "V5_COL_SCHEDULE",
+        "V5_COL_SCOUTING",
+        "V5_COL_STATISTICS",
+        "V5_COL_TEAMS",
+        "DT_EVENTS_EVENT",
+        "DT_EVENTS_DISTRICT",
+        "DT_SCOUTING_PIT",
+        "DT_SCOUTING_PRESCOUT",
+        "DT_SCOUTING_MATCH",
+        "DT_STATISTICS_OPR",
+        "DT_STATISTICS_DPR",
+        "DT_STATISTICS_CCWM",
+        "DT_STATISTICS_EPA",
+        "MATCHLEVEL_QUALIFIERS",
+        "MATCHLEVEL_QUARTERS",
+        "MATCHLEVEL_SEMIS",
+        "MATCHLEVEL_FINALS",
+        "ALL_TEAMS",
+        "ALL_TEAMS_DETAILED",
+        "PRESCOUTING_FIELDS",
+    ]
+
+    return check_config_params(cfg, v5_values_to_check)
+
+
+###############################################################################
+###############################################################################
+def validate_configuration() -> None:
+    """
+    Validate that the necessary configuration and credential information exists.
+
+    First do credential checks and then do schema specific checks.  We only
+    check the current schema and not all possible schemas.
+    """
+    logger = get_logger()
+
+    badConfig = False
+    badV5Config = False
+
+    if not (hasattr(creds, "PRIMARY_CONNECTION_STRING") and creds.PRIMARY_CONNECTION_STRING):
+        err_msg: str = "ERROR: PRIMARY_CONNECTION_STRING is missing or empty!"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        badConfig = True
+
+    if not hasattr(creds, "SECONDARY_CONNECTION_STRING"):
+        err_msg = "ERROR: SECONDARY_CONNECTION_STRING is missing!"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        badConfig = True
+
+    badV5Config = is_V5_configuration_bad()
+
+    if badConfig or badV5Config:
+        sys.exit(2)
+
+
+###############################################################################
+###############################################################################
+def get_database(databaseURI: str, databaseName: str) -> Optional["Database"]:
+    """
+    Returns a MongoDB database to read/write the all your data from/into OR
+        None if there was a problem accessing the database.
+
+    The collection to use is pulled from the configuration data so we use
+        the same one for all databases.
+
+    Parameters:
+        databaseURI (str): The database connection URL to use
+
+        databaseName (str): The name of the database to access
+
+    Returns:
+        A Database if we connected successfully, None otherwise
+    """
+    from pymongo import MongoClient
+
+    logger = get_logger()
+
+    try:
+        client: MongoClient = MongoClient(databaseURI, serverSelectionTimeoutMS=15000)
+        client.admin.command("ping")
+        return client[databaseName]
+    except ConnectionError as e:
+        err_msg = f"ERROR: Failed to connect to MongoDB server: {e}"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+    except Exception as e:
+        err_msg = f"ERROR: Failed to access the database: {e}"
+        logger.error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+
+    return None
+
+
+###############################################################################
+###############################################################################
 #                  Main starting point for the script
 ###############################################################################
 ###############################################################################
