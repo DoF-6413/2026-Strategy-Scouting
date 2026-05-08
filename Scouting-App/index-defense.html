@@ -478,7 +478,8 @@
 	             ) {
 		          var data =
 		              "{" +
-					  '"cl":'  + JSON.stringify(getLevel()) +
+					  '"mo":"d"' +
+					  ',"cl":'  + JSON.stringify(getLevel()) +
 		              ',"mn":' + JSON.stringify(Number($("#input_m").val())) +
 		              ',"i":'  + JSON.stringify($("#input_s").val().trim()) +
 		              ',"r1":' + JSON.stringify(Number($("input[name='R1-input']:checked").val())) +
