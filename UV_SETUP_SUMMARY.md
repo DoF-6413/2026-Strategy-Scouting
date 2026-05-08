@@ -33,8 +33,7 @@
 ### Files Modified
 
 1. **Batch files** (Windows):
-   - `Scouting Match v8 Scan.bat` - Updated to use `uv run`
-   - `Scouting Defense v3 Scan.bat` - Updated to use `uv run`
+   - `ScoutingMatchScan.bat` - Runs combined match and defense scouting script
    - `Strategy Dashboard.bat` - Updated to use `uv run`
    - All now use `cd /d "%~dp0"` for relative path handling
 
