@@ -79,7 +79,7 @@ Every function that logs opens with `logger = get_logger()`.
 ### Configuration helpers
 
 - `check_config_params(cfg, params)` — returns `True` if any param is missing/empty
-- `is_V5_configuration_bad()` — checks V5 schema constants following `scouting_2026_v2.py`'s list (does **not** include `PRESCOUTING_FIELDS` — the new script does not do prescouting)
+- `is_V5_configuration_bad()` — checks all V5 schema constants including `PRESCOUTING_FIELDS`, following `defense_scouting_2026_v2.py`'s list (the field is not used by this script but is checked for consistency; `scouting_2026_v2.py` omitted it by oversight)
 - `validate_configuration()` — checks credentials + V5 schema, calls `sys.exit(2)` on failure
 - `get_database(databaseURI, databaseName)` — connects with 15 s timeout, pings, returns `Database` or `None`
 
