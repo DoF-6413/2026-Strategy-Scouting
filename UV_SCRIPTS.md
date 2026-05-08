@@ -50,7 +50,7 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 
 | Script | Command |
 |--------|---------|
-| Match & Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_all_2026.py` |
+| Match & Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_all_v2.py` |
 | Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2026_v2.py` |
 | Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2026_v2.py` |
 | Pre-scouting Template | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py` |
