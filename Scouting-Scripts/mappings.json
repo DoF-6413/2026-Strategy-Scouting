@@ -20,7 +20,7 @@
     "key_mapping": {
       "cl": "compLevel",
       "mn": "matchNumber",
-      "i": "scouter",
+      "i": "defenseScouter",
       "r1": "r1defense",
       "r2": "r2defense",
       "r3": "r3defense",

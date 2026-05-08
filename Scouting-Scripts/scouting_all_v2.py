@@ -503,7 +503,7 @@ def main() -> None:
                 )
                 team_data: Dict[str, Any] = {
                     "defense": inflated[f"{team_prefix}defense"],
-                    "defenseScouter": inflated["scouter"],
+                    "defenseScouter": inflated["defenseScouter"],
                     "eventCode": eventCode,
                     "docType": inflated["docType"],
                 }
