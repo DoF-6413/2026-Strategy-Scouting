@@ -59,6 +59,7 @@ venv.bak/
 # Auto generated scouting data logs
 ScoutingData_*
 DefenseScoutingData_*
+ScoutingAll*
 ScriptLog_*
 TrainingData_*
 ScoutTrainingData_*
