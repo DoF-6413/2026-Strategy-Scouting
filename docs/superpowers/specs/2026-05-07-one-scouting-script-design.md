@@ -76,10 +76,10 @@ def get_logger() -> logging.Logger: ...     # returns _logger, calls setup_logge
 
 Every function that logs opens with `logger = get_logger()`.
 
-### Configuration helpers (unchanged from originals)
+### Configuration helpers
 
 - `check_config_params(cfg, params)` — returns `True` if any param is missing/empty
-- `is_V5_configuration_bad()` — checks all V5 schema constants
+- `is_V5_configuration_bad()` — checks V5 schema constants following `scouting_2026_v2.py`'s list (does **not** include `PRESCOUTING_FIELDS` — the new script does not do prescouting)
 - `validate_configuration()` — checks credentials + V5 schema, calls `sys.exit(2)` on failure
 - `get_database(databaseURI, databaseName)` — connects with 15 s timeout, pings, returns `Database` or `None`
 
