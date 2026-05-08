@@ -364,6 +364,38 @@ def main() -> None:
     match_mapping = all_mappings[match_key]
     defense_mapping = all_mappings[defense_key]
 
+    if "key_mapping" not in match_mapping or "total_game_pieces_fields" not in match_mapping:
+        err_msg = (
+            f"ERROR: mappings.json '{match_key}' entry is missing 'key_mapping' or "
+            f"'total_game_pieces_fields'. Check mappings.json and restart."
+        )
+        get_logger().error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        sys.exit(2)
+
+    if "key_mapping" not in defense_mapping:
+        err_msg = (
+            f"ERROR: mappings.json '{defense_key}' entry is missing 'key_mapping'. "
+            f"Check mappings.json and restart."
+        )
+        get_logger().error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        sys.exit(2)
+
+    valid_inflated = set(match_mapping["key_mapping"].values())
+    invalid_fields = [
+        f for f in match_mapping["total_game_pieces_fields"] if f not in valid_inflated
+    ]
+    if invalid_fields:
+        err_msg = (
+            f"ERROR: mappings.json '{match_key}' total_game_pieces_fields contains "
+            f"names not found in key_mapping values: {invalid_fields}. "
+            f"Check mappings.json and restart."
+        )
+        get_logger().error(err_msg)
+        print(f"{Fore.RED}{err_msg}")
+        sys.exit(2)
+
     # Get the MongoDB database to save the data into.  Abort if we fail
     # on the primary server but NOT on the secondary since it is 100%
     # optional.
