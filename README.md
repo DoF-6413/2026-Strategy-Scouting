@@ -188,7 +188,7 @@ To collect the data via the QR code from the app you will also need to run the s
 
 The data collected from the Scouting App is collected using QR codes, a barcode scanner paired to a computer and a Python script that will 'reinflate' the JSON data in the QR code into a more dataviz friendly format that gets stored into a MongoDB locally and/or remotely.
 
-**Note:** Simply run the **ScoutingMatchScan.bat** script by double clicking on it in File Explorer or manually typing the name in any command prompt opened to this repo.  Don't forget to put the name in double quotes if you try to manually run it!
+**Note:** Simply run the **ScoutingMatchScan.bat** script by double clicking on it in File Explorer or by typing its name in any command prompt opened to this repo.  For quick access, drag the BAT file to your Desktop to create a shortcut.
 
 A single script handles both match and defense scouting — the QR code payload includes a mode key (`mo`) that tells the script which type of data it is receiving.  To run it directly, use uv from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
