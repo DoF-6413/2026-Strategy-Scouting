@@ -50,9 +50,7 @@ def setup_logger() -> logging.Logger:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             log_file_path = os.path.join(script_dir, log_file)
             handler = logging.FileHandler(log_file_path)
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
             handler.setFormatter(formatter)
             _logger.addHandler(handler)
 
@@ -260,10 +258,7 @@ def inflate_match_data(matchData: Dict) -> Optional[Dict]:
     matchData["totalGamePieces"] = matchData["autoHub"] + matchData["teleHub"]
 
     id_to_use = (
-        f"{eventCode}_"
-        f"{matchData['compLevel']}"
-        f"{matchData['matchNumber']}_frc"
-        f"{matchData['team']}"
+        f"{eventCode}_{matchData['compLevel']}{matchData['matchNumber']}_frc{matchData['team']}"
     )
     matchData["_id"] = id_to_use
 
@@ -341,8 +336,7 @@ def main() -> None:
 
     while True:
         eventCode = input(
-            "Enter the event code for the event you are scouting "
-            "(or 'quit' to exit): "
+            "Enter the event code for the event you are scouting (or 'quit' to exit): "
         ).strip()
 
         if eventCode.lower() == "quit":
@@ -450,18 +444,13 @@ def main() -> None:
             scoutingCollection.update_one({"_id": matchID}, {"$set": inflated}, upsert=True)
 
             if scoutingCollection2 is not None:
-                scoutingCollection2.update_one(
-                    {"_id": matchID}, {"$set": inflated}, upsert=True
-                )
+                scoutingCollection2.update_one({"_id": matchID}, {"$set": inflated}, upsert=True)
 
         elif mo == "d":
-            for team_prefix in tqdm(
-                ["r1", "r2", "r3", "b1", "b2", "b3"], desc="Processing Teams"
-            ):
+            for team_prefix in tqdm(["r1", "r2", "r3", "b1", "b2", "b3"], desc="Processing Teams"):
                 team_num: str = str(inflated[f"{team_prefix}teamNum"])
                 id_to_use = (
-                    f"{eventCode}_{inflated['compLevel']}"
-                    f"{inflated['matchNumber']}_frc{team_num}"
+                    f"{eventCode}_{inflated['compLevel']}{inflated['matchNumber']}_frc{team_num}"
                 )
                 team_data: Dict[str, Any] = {
                     "defense": inflated[f"{team_prefix}defense"],
@@ -470,9 +459,7 @@ def main() -> None:
                     "docType": inflated["docType"],
                 }
 
-                scoutingCollection.update_one(
-                    {"_id": id_to_use}, {"$set": team_data}, upsert=True
-                )
+                scoutingCollection.update_one({"_id": id_to_use}, {"$set": team_data}, upsert=True)
 
                 if scoutingCollection2 is not None:
                     scoutingCollection2.update_one(
