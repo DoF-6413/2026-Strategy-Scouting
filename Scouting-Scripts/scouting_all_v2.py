@@ -325,7 +325,9 @@ def main() -> None:
         sys.exit(2)
 
     # Construct the replay log file for the tablet data for this run
-    replayFile = f"ScoutingAll_{datetime.now().strftime('%Y%m%d_%H%M%S')}.data"
+    os.makedirs("Logs", exist_ok=True)
+    log_filename = f"ScoutingAll_{datetime.now().strftime('%Y%m%d_%H%M%S')}.data"
+    replayFile = os.path.join("Logs", log_filename)
     status_msg: str = f"The data log for this session is {replayFile}"
     get_logger().info(status_msg)
     print(status_msg)
