@@ -1,0 +1,38 @@
+{
+  "2026s": {
+    "key_mapping": {
+      "cl": "compLevel",
+      "mn": "matchNumber",
+      "i": "scouter",
+      "a1": "autoHub",
+      "a2": "autoHubMiss",
+      "t1": "teleHub",
+      "t2": "teleHubMiss",
+      "ns": "noShow",
+      "r": "relayed",
+      "h": "herded",
+      "d": "died",
+      "co": "comments"
+    },
+    "total_game_pieces_fields": ["autoHub", "teleHub"]
+  },
+  "2026d": {
+    "key_mapping": {
+      "cl": "compLevel",
+      "mn": "matchNumber",
+      "i": "defenseScouter",
+      "r1": "r1defense",
+      "r2": "r2defense",
+      "r3": "r3defense",
+      "r4": "r1teamNum",
+      "r5": "r2teamNum",
+      "r6": "r3teamNum",
+      "b1": "b1defense",
+      "b2": "b2defense",
+      "b3": "b3defense",
+      "b4": "b1teamNum",
+      "b5": "b2teamNum",
+      "b6": "b3teamNum"
+    }
+  }
+}

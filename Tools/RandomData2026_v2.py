@@ -225,7 +225,7 @@ for matchNum in range(1, 41):
         # NOT going to try and get fancy with random secondary stats like stopping, no show, etc
 
         matchResults = (
-            f'"key":{a_Teams[team][TEAMNUM]},"mn":{matchNum},"cl":"qm","i":"Python",'
+            f'"mo":"s","key":{a_Teams[team][TEAMNUM]},"mn":{matchNum},"cl":"qm","i":"Python",'
             f'"a1":{autoHub},"a2":{autoHubMiss},'
             f'"t1":{a_Teams[team][HUB]},"t2":{a_Teams[team][HUBMISS]},'
             f'"ns":0,"d":0,"r":{teleRelay},"h":{teleHerd},'

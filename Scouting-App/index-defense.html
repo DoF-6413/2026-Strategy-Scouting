@@ -143,7 +143,7 @@
                     </div>
 
 					<div class="col text-center">
-						<p><small>Version 1</small></p>
+						<p><small>Version 1.1</small></p>
 					</div>
 
 					<div class="col text-end">
@@ -478,7 +478,8 @@
 	             ) {
 		          var data =
 		              "{" +
-					  '"cl":'  + JSON.stringify(getLevel()) +
+					  '"mo":"d"' +
+					  ',"cl":'  + JSON.stringify(getLevel()) +
 		              ',"mn":' + JSON.stringify(Number($("#input_m").val())) +
 		              ',"i":'  + JSON.stringify($("#input_s").val().trim()) +
 		              ',"r1":' + JSON.stringify(Number($("input[name='R1-input']:checked").val())) +

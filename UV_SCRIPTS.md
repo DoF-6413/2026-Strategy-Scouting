@@ -50,8 +50,7 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 
 | Script | Command |
 |--------|---------|
-| Match Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_2026_v2.py` |
-| Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/defense_scouting_2026_v2.py` |
+| Match & Defense Scouting | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_all_v2.py` |
 | Training Check | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_checking_2026_v2.py` |
 | Training Collection | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/training_collection_2026_v2.py` |
 | Pre-scouting Template | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py` |
@@ -59,9 +58,8 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 | File to MongoDB | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/file_to_MongoDB_v1.py` |
 | Find Missing Data | `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/find_missing_data.py` |
 
-**Or use the batch files (Windows):**
-- `ScoutingMatchScan.bat` - Match scouting
-- `ScoutingDefenseScan.bat` - Defense scouting
+**Or use the batch file (Windows):**
+- `ScoutingMatchScan.bat` - Match and defense scouting
 
 **NOTE:** Drag and drop the BATch files to your Desktop to easily launch the scripts without needing to open a command prompt first.  You can rename the BATch files to have spaces if you put them on your Desktop so they are more readable when sitting side by side.  Bonus points if you change the Desktop icons to make them different and visually distinct.
 
