@@ -57,6 +57,7 @@ env.bak/
 venv.bak/
 
 # Auto generated scouting data logs
+Logs/
 ScoutingData_*
 DefenseScoutingData_*
 ScoutingAll_*
