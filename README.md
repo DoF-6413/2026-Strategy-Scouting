@@ -18,9 +18,9 @@ This repo uses **uv** to manage Python and all required packages. uv handles eve
 
 **For full setup instructions and a complete list of commands for running every script in this repo, see [UV_SCRIPTS.md](UV_SCRIPTS.md).**
 
-### Quick start
+## Quick start
 
-**Step 1: Install uv** (one-time per computer)
+### Step 1: Install uv (one-time per computer)
 
 Note: On Windows you can use either an Admin PowerShell or a Command prompt.  On Mac you can use a Terminal.  We will refer to whatever you opened as "the Terminal" from this point on to keep things readable.
 
@@ -28,36 +28,36 @@ Note: On Windows you can use either an Admin PowerShell or a Command prompt.  On
 
 There are multiple ways to install uv on your computer.  Pick one that works best for you:
 
-1: If you already have Python installed then you can simply type '**pip install uv**'
+1: If you already have Python installed then simply type: `pip install uv`
 
-2: If you have Chocolatey installed simply type `**choco install uv**`
+2: If you have Chocolatey installed simply type: `choco install uv`
 
-3: If neither of the above are true then simply type `**powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"**`
+3: If neither of the above are true then simply type: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
 Note: Option 3 above will also add uv to your system PATH so it will always be available going forward.
 
-Once you have installed uv, test it by running `**uv --version**`.  If you do not see any version information, you need to recheck your installation.
+Once you have installed uv, test it by running `uv --version`.  If you do not see any version information, you need to recheck your installation.
 
 #### Mac
 
 There are multiple ways to install uv on your computer.  Pick one that works best for you:
 
-1: If you already have Python installed then you can simply type '**pip3 install uv**'
+1: If you already have Python installed then simply type: 'pip3 install uv'
 
-2: If you have Chocolatey installed simply type `**choco install uv**`
+2: If you have Chocolatey installed simply type: `choco install uv`
 
-3: Use Homebrew by typing `**brew install uv**`
+3: Use Homebrew by typing `brew install uv`
 
-4: Power user style by typing `**curl -LsSf https://astral.sh/uv/install.sh | sh**`
+4: Power user style by typing `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
-Once you have installed uv, test it by running `**uv --version**`.  If you do not see any version information, you need to recheck your installation.
+Once you have installed uv, test it by running `uv --version`.  If you do not see any version information, you need to recheck your installation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-**Step 2: Sync dependencies** (one-time per repo clone, run from the repo root)
+### Step 2: Sync dependencies (one-time per repo clone, run from the repo root)
 
-- On Windows type `**uv sync --link-mode=copy**`
-- On Mac/Linux type `**uv sync**`
+- On Windows type `uv sync --link-mode=copy`
+- On Mac/Linux type `uv sync`
 
 That’s it.  uv will download the correct Python version and all required packages automatically.
 
@@ -65,9 +65,9 @@ That’s it.  uv will download the correct Python version and all required packa
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-**Step 3: Docker Desktop & MongoDB**
+### Step 3: Docker Desktop & MongoDB
 
-### Windows
+#### Windows
 
 To run Docker Desktop on Windows your computer must must meet specific requirements, particularly regarding virtualization and the Windows Subsystem for Linux (WSL).
 
@@ -81,7 +81,7 @@ To run Docker Desktop on Windows your computer must must meet specific requireme
     - Open the Start menu, search for **Turn Windows features on or off**, and open it.
     - Ensure Windows Subsystem for Linux and Virtual Machine Platform are checked.
     - Click **OK** and restart your computer if prompted.
-  - Alternatively, you can run `**wsl --install**` in an Admin PowerShell to set this up automatically.
+  - Alternatively, you can run `wsl --install` in an Admin PowerShell to set this up automatically.
 
 3. Download and Install Docker Desktop 
   - Visit the [Docker Website](https://www.docker.com/products/docker-desktop/) and click **Download for Windows**.
@@ -93,29 +93,25 @@ To run Docker Desktop on Windows your computer must must meet specific requireme
   - Open Docker Desktop from the Start menu or desktop shortcut.
   - Review and accept the Docker Subscription Service Agreement.
   - Skip signing in with a Docker ID unless you already have one or really want to create one.
-  - Open a terminal and type '**docker --version**'.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
-  - Next check that the Docker engine is working by typing `**docker run hello-world**`
+  - Open a terminal and type `docker --version`.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
+  - Next check that the Docker engine is working by typing `docker run hello-world`
     - This will download a small test image and run it in a container.  You should see a nice Hello message confirming Docker is installed and working properly.  If not, recheck your steps or check the Docker documentation on how to troubleshoot.
 
 5. Install the MongoDB image:
-  - In the terminal type '**docker pull mongo:8**'.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
+  - In the terminal type 'docker pull mongo:8'.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
 
 **NOTE:** When you launch your first MongoDB container, make sure you configure the container to have an exposed port of 27017 or else you will not be able to contact the server.
 
 
-### Mac
+#### Mac
 
 1: Install Docker Desktop
 
 There are 2 ways to install Docker Desktop on Mac:
 
-#### Homebrew
+##### Homebrew
 
-In the Terminal type the following:
-
-```
-**brew install --cask docker-desktop**
-```
+In the Terminal type: `brew install --cask docker-desktop`
 
 #### Typical app installation
 
@@ -123,19 +119,19 @@ In the Terminal type the following:
   - Open the file you downloaded and drag the Docker icon to the Applications folder.
   - Open Docker from your Applications folder, accept the subscription agreement, and grant necessary permissions.
 
-**NOTES:**
+**Notes:**
 Apple Silicon (M1/M2/M3): Use the Apple Silicon version for native performance.
 Rosetta 2: If asked, install Rosetta 2 for running x86_64 binaries.
 
 2: Verification:
 
-  - In the Terminal type `**docker --version**`.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
-  - Next check that the Docker engine is working by typing `**docker run hello-world**`
+  - In the Terminal type `docker --version`.  If the installation was successful you will get the current Docker version number and Docker is ready to go.
+  - Next check that the Docker engine is working by typing `docker run hello-world`
     - This will download a small test image and run it in a container.  You should see a nice Hello message confirming Docker is installed and working properly.  If not, recheck your steps or check the Docker documentation on how to troubleshoot.
 
 3. Install the MongoDB image:
 
-- In the Terminal type `**docker pull mongo:8**`.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
+- In the Terminal type `docker pull mongo:8`.  This will install the 8.x version of the MongoDB server to use locally.  For this year we are going to pin to 8.x since we had been pinned to 6.x but that is now EOL.
 
 **NOTE:** When you launch your first MongoDB container, make sure you configure the container to have an exposed port of 27017 or else you will not be able to contact the server.
 
@@ -192,7 +188,7 @@ The data collected from the Scouting App is collected using QR codes, a barcode 
 
 A single script handles both match and defense scouting — the QR code payload includes a mode key (`mo`) that tells the script which type of data it is receiving.  To run it directly, use uv from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
-**uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_all_v2.py**
+`uv run --package frc-6413-scouting-scripts python Scouting-Scripts/scouting_all_v2.py`
 
 From there, simply enter the TBA event code for the event you are collecting data for and then start scanning QR codes to collect data.
 
@@ -214,11 +210,11 @@ The Strategy Team created a dashboard using Streamlit to visualize the scouting 
 
 To see the dashboard, use uv from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
-**uv run --package frc-6413-strategy-dashboard streamlit run Strategy-Dashboard/main.py**
+`uv run --package frc-6413-strategy-dashboard streamlit run Strategy-Dashboard/main.py`
 
 That will start the dashboard and provide you with the URL to access it locally (or to share with others on the same network).
 
-Any interactions with the dashboard should rerun the app. With constant interactions, most data points will update around every 90 seconds if new data is being collected while the dashboard is in use. If an urgent data update is necessary: the sidebar "Refresh Scouting Data" or "Refresh Match Schedule" buttons will force a refresh of the respective data types.
+Any interactions with the dashboard should rerun the app. With constant interactions, most data points will update around every 90 seconds if new data is being collected while the dashboard is in use. If an urgent data update is necessary: the sidebar **Refresh Scouting Data** or **Refresh Match Schedule** buttons will force a refresh of the respective data types.
 
 #### Event code selection
 
@@ -254,7 +250,7 @@ We collect our pre-scouting data in a Google Doc in our sponsors Google Workspac
 
 For each event you are prescouting for you will create a custom prescouting template.  Run the following from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
-- `**uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py**`
+- `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_make_template.py`
 - Enter the TBA event code for the event you are prescouting **FOR**.
 - Enter the **base** name of the file you want to hold the generated template markdown.  Do **NOT** include a file extension; **.md** is automatically added.
 
@@ -301,11 +297,11 @@ At any time you can import (or re-import) the pre-scouting data into your MongoD
 
 Run the following from the repo root, giving it the name of the file you want to import (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 
-- `**uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_upload.py**`
+- `uv run --package frc-6413-scouting-scripts python Scouting-Scripts/prescouting_upload.py`
 - Enter the TBA event code for the event you prescouted.
 - Enter the full name of the file you exported in the previous step.
 
-Once done the pre-scouting data will have been put into the MongoDB that is configured in your `**credentails.py**` file.  
+Once done the pre-scouting data will have been put into the MongoDB that is configured in your `credentails.py` file.  
 
 You can now use whatever tools you want to access that data from the config.V5_COL_SCOUTING collection.  All pre-scouting data will have a docType item value of config.DT_SCOUTING_PRESCOUT.
 
@@ -319,7 +315,7 @@ There may be multiple versions of some scripts.  When this occurs, you should ty
 
 All Tools scripts are run from the repo root using uv — see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference. The general form is:
 
-`**uv run --package frc-6413-scouting-tools python Tools/&lt;script_name&gt;.py**`
+`uv run --package frc-6413-scouting-tools python Tools/&lt;script_name&gt;.py`
 
 **TODO: Add a detailed description on how to modify the a_Teams array in the RandomData... script for more control over how the data changes.** 
 
