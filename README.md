@@ -230,7 +230,7 @@ When you first open the dashboard, you should select the current event code and 
 - **Match Schedule**: The full match schedule table (received from fetching The Blue Alliance). 
 - **Match Scouter**: A page where you can scout a future match to formulate match strategy. It will compare and sumamrize the alliances in the match.
 - **Alliance Explorer**: A page where you can create speculative or real alliance scenarios. It will compare and summarize the speculative alliances.
-- **Niche Finder**: A page for finding teams that fulfill specific niches. The core idea is that comparing teams on a stat based solely on their average is an ineffective method of finding the "best" teams at something in a game based on specializations that can shift from match-to-match. Instead, this lets you to view upper quartiles and maxs to find the teams that have the highest ceiling. It can also adjust for accuracy to discredit the high ceiling yet inaccurate teams.
+- **Niche Finder**: A page for finding teams that fulfill specific niches. The core idea is that comparing teams on a stat based solely on their average is an ineffective method of finding the "best" teams at something in a game based on specializations that can shift from match-to-match. Instead, this lets you to view upper quartiles and maxs to find the teams that have the highest ceiling. It can also adjust for accuracy to discredit the high ceiling yet inaccurate teams (not available for the 2026 game, since scoring isn't tracked with enough granularity to compute an accuracy stat).
 
 #### Properly closing the dashboard
 
@@ -318,6 +318,27 @@ All Tools scripts are run from the repo root using uv — see [UV_SCRIPTS.md](UV
 `uv run --package frc-6413-scouting-tools python Tools/&lt;script_name&gt;.py`
 
 **TODO: Add a detailed description on how to modify the a_Teams array in the RandomData... script for more control over how the data changes.** 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+<!-- TROUBLESHOOTING -->
+## Troubleshooting
+
+### `uv run` fails with "Access is denied" removing `.venv\lib64`
+
+If you sync/run with `uv` from **both** WSL (Linux) and native Windows Command Prompt/PowerShell against the same repo folder, you may see an error like:
+
+```
+error: failed to remove file `...\.venv\lib64`: Access is denied. (os error 5)
+```
+
+This happens because `.venv` was built for one OS (e.g. WSL, which creates a `lib64` symlink) and you're now running `uv` from the other OS, which can't safely modify it. The fix is to delete the `.venv` folder in the repo root and let `uv` recreate it for whichever OS you're currently running from:
+
+- **Windows Command Prompt/PowerShell:** `rmdir /s /q .venv`
+- **WSL/Mac/Linux:** `rm -rf .venv`
+
+Then re-run `uv sync` (using `--link-mode=copy` on Windows, per [Step 2](#step-2-sync-dependencies-one-time-per-repo-clone-run-from-the-repo-root)) before trying again. Stick to one OS per clone if possible to avoid this.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

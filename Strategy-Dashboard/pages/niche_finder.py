@@ -177,9 +177,18 @@ def main ():
 
     # Gets the match DataFrame to use for data
     df: DataFrame = utils.get_match_data ()
+
+    if df.empty:
+        st.info("No scouting data found yet for the selected event(s).")
+        return
+
     # Gets the teams list of teams to show data for
     event_teams = utils.get_event_teams(st.session_state["currentEventCode"])
     filtered_teams = [team for team in event_teams if len(df[df["team"]==team]) > 0]
+
+    if len(filtered_teams) == 0:
+        st.info("No teams with scouting data found yet for the selected event(s).")
+        return
 
     # Writes short explanation of what the row highlights mean
     st.write("ORANGE: Teams that haven't demonstrated the ability to fill all the specified niches.")

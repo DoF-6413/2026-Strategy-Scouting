@@ -87,6 +87,10 @@ def main():
         st.write("Add alliances to visualize data")
         return
 
+    if match_df.empty:
+        st.info("No scouting data found yet for the selected event(s).")
+        return
+
     # Write the information on the alliances
     utils.write_alliances_view(match_df, prescouting_df, stored_alliances)
 

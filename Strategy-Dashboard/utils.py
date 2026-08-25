@@ -4,11 +4,11 @@ import os
 import re as regex
 
 import config as cfg
-import credentials as creds
 import plotly
 import plotly.graph_objects as go
 import scipy.stats as stats
 import streamlit as st
+from frc_6413_common import credentials as creds
 from pandas import DataFrame
 from PIL import Image
 from plotly.subplots import make_subplots
@@ -44,6 +44,11 @@ def get_scouting_data() -> DataFrame:
 
     # Convert the data to a DataFrame
     df: DataFrame = DataFrame(list(collection.find("")))
+
+    # If the scouting collection has no documents yet, df has no columns at
+    # all (not even "eventCode"/"team"), so return early instead of crashing.
+    if df.empty:
+        return DataFrame(columns=["eventCode", "docType", "team"])
 
     # Filter the data to only include data from selected events
     df = df[df["eventCode"].isin(st.session_state["dataEventCodes"])]
@@ -162,6 +167,12 @@ def get_event_teams(event_code: str) -> list:
     col: Collection = db.get_collection(cfg.V5_COL_EVENTS)
 
     df: DataFrame = DataFrame(list(col.find("")))
+
+    # If the events collection has no documents yet, df has no columns to
+    # filter on, so return early instead of crashing.
+    if df.empty:
+        return []
+
     filtered_df = df[ (df["docType"]==cfg.DT_EVENTS_TEAMS) & (df["event_key"]==event_code) ]
 
     teams: list = filtered_df["team_number"].unique().astype(str).tolist()
@@ -476,9 +487,14 @@ def stat_selector(selector_key: str, multiselect: bool, custom_label: str = None
     if session_state_key in st.session_state and st.session_state[session_state_key] != "":
         selected_stats: list = st.session_state[session_state_key]
     elif session_state_key not in st.session_state:
-        selected_stats: list = cfg.STAT_SELECTOR_DEFAULTS[selector_key]
-        if not selected_stats:
-            selected_stats = cfg.STAT_SELECTOR_FALLBACK_DEFAULT
+        # An empty list is a valid, intentional default (e.g. no accuracy stats
+        # exist to preselect this year) and must NOT be replaced by the
+        # fallback, since the fallback stat may not be a valid option for this
+        # selector's custom_options.
+        if selector_key in cfg.STAT_SELECTOR_DEFAULTS:
+            selected_stats: list = cfg.STAT_SELECTOR_DEFAULTS[selector_key]
+        else:
+            selected_stats: list = cfg.STAT_SELECTOR_FALLBACK_DEFAULT
         st.session_state[session_state_key] = selected_stats
 
     # Use a Streamlit multiselect element if multiselect is True, otherwise use a Streamlit selectbox element (single selection)
@@ -532,6 +548,10 @@ def team_selector(selector_key: str, multiselect: bool) -> list:
     # If there's team selections stored, set those as the selection. Otherwise, use the config default
     if session_state_key in st.session_state and st.session_state[session_state_key] != "":
         selected_teams: list = st.session_state[session_state_key]
+    elif len(selectable_teams) == 0:
+        # No teams registered for this event yet, so there's nothing to default to.
+        selected_teams: list = []
+        st.session_state[session_state_key] = selected_teams
     else:
         selected_teams: list = [selectable_teams[0]]
         st.session_state[session_state_key] = selected_teams
@@ -893,10 +913,13 @@ def write_team_match_line_chart(team_df: DataFrame, keys: list, max_y: int = Non
 
     ##### MATCH WARNINGS #####
     # Gets a list of the index of each "warning"
-    # A warning just flags a concerning value such as if they died or were carded to make it pop on the line chart
+    # A warning just flags a concerning value such as if they died to make it pop on the line chart
+    # ponytail: the "card" field (yellow/red cards) doesn't exist in the 2026
+    # schema, so carded matches can't be flagged here anymore. Re-add a
+    # `cards[i] in [1, 2]` clause here if cards come back in a future game.
     warning_match_indexes: list = [val
                                    for i, val in enumerate(match_number_indexes)
-                                   if dieds[i] == 1 or cards[i] in [1, 2] ]
+                                   if dieds[i] == 1 ]
 
     # Iterates over each warning and adds a simple vertical line on the match number to flag it
     for warning in warning_match_indexes:

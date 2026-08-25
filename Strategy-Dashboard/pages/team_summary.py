@@ -111,6 +111,10 @@ def main ():
     match_df = utils.get_match_data()
     prescouting_df = utils.get_prescouting_data()
 
+    if match_df.empty:
+        st.info("No scouting data found yet for the selected event(s).")
+        return
+
     # If there's more than one team selected, write graphs to compare them
     if len(team_numbers) > 1:
         # Write a header noting this is team comparisons

@@ -150,10 +150,10 @@ Document types in `scouting` collection:
 
 ### Key Configuration Files
 
-- `Common/frc_6413_common/config.py` - V5 schema constants, collection names, docTypes (shared by Scouting-Scripts, Tools, and the Strategy-Dashboard once the dashboard cleanup branch lands)
-- `Common/frc_6413_common/credentials.py` - MongoDB connection strings, TBA API key (gitignored; copy from `Common/credentials.py.example`)
+- `Common/frc_6413_common/config.py` - V5 schema constants, collection names, docTypes (shared by Scouting-Scripts, Tools, and the Strategy-Dashboard)
+- `Common/frc_6413_common/credentials.py` - MongoDB connection strings, TBA API key (gitignored; copy from `Common/credentials.py.example`); also used by the Strategy-Dashboard, which no longer has its own local `credentials.py`
 - `Scouting-App/config.js` - Event code for scouting app (edit `eventCode` field)
-- `Strategy-Dashboard/config.py` - Dashboard-only UI configuration (visualization colors, stat mappings, page configs) plus a still-duplicated subset of schema constants slated for cleanup on a separate branch
+- `Strategy-Dashboard/config.py` - Dashboard-only UI configuration (visualization colors, stat mappings, page configs). Shared schema constants (DB/collection/docType names) are imported from `Common/frc_6413_common/config.py` rather than duplicated here.
 
 ### Script Versioning
 

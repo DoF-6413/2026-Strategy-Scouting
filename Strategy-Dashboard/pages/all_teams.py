@@ -114,6 +114,10 @@ def main():
     # Get the DataFrame holding the match data from the MongoDB
     df = utils.get_match_data()
 
+    if df.empty:
+        st.info("No scouting data found yet for the selected event(s).")
+        return
+
     event_teams = utils.get_event_teams(st.session_state["currentEventCode"])
     filtered_teams = [team for team in event_teams if len(df[df["team"]==team]) > 0]
 

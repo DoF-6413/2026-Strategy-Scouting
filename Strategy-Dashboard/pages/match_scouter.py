@@ -150,6 +150,10 @@ def write_match_summary(match_df: DataFrame, prescouting_df: DataFrame, match_ke
         f"Red Alliance ({'/'.join([str(x) for x in red_teams])})",
     ]
 
+    if match_df.empty:
+        st.info("No scouting data found yet for the selected event(s).")
+        return
+
     # Writes the actual alliances view for the alliances in this match.
     utils.write_alliances_view(match_df, prescouting_df, alliances, alliance_names)
 

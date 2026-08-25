@@ -30,6 +30,10 @@ def main():
 
     defense_df: DataFrame = get_defense_data()
 
+    if defense_df.empty:
+        st.info("No defense scouting data found yet for the selected event(s).")
+        return
+
     event_teams = utils.get_event_teams(st.session_state["currentEventCode"])
     if len(event_teams)==0:
         st.write("No teams found for event.")

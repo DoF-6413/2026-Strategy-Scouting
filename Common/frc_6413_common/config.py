@@ -102,6 +102,11 @@ V5_COL_EVENTS = "events"
 # Finals 1, Match 1 at the 2024 Arizona East Regional.
 V5_COL_MATCH = "matches"
 
+# Alias used by the Strategy-Dashboard, which historically named this
+# constant in the plural. Kept here so the dashboard doesn't need its own
+# copy of this value.
+V5_COL_MATCHES = V5_COL_MATCH
+
 # This collection holds all schedule data keyed off the event code and match
 # key.  For example, "2024azgl_f1m1" would be schedule data for Finals 1, Match
 # 1 at the 2024 Arizona East Regional.
