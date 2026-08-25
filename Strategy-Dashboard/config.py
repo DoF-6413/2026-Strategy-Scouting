@@ -95,6 +95,14 @@ ROBOT_PHOTOS_FORMAT = "jpg"
 ##### GAME SPECIFIC VARIABLES #####
 #region GAME SPECIFIC
 
+# TODO: This whole region gets hand-rewritten every season (see the 2025->2026
+# port). Scouting-Scripts/mappings.json already drives its field mapping data
+# instead of hardcoding it per season - consider a similar data-driven
+# approach here (e.g. a per-season stats mapping file) so a new season's
+# dashboard stats/labels/colors/tabs can be reconfigured without editing
+# Python, and so this file stops drifting out of sync with the actual stored
+# schema between seasons.
+
 SELECTABLE_STATS = [
     'totalGamePieces',
     'autoHub',

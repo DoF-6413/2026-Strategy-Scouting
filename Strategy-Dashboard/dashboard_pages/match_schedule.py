@@ -4,6 +4,10 @@ import utils
 from pandas import DataFrame
 
 
+# TODO: "6413" is hardcoded here and in main() below (the "Show only DoF"
+# filter). Replace both with a cfg.OUR_TEAM_NUM value (not yet defined in
+# config.py) so another team could reuse this dashboard by changing a single
+# config value instead of editing this file.
 def color_team_matches(v: any) -> str | None:
     """Highlights cells in the match schedule where the value is 6413
 
