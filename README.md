@@ -232,6 +232,10 @@ When you first open the dashboard, you should select the current event code and 
 - **Alliance Explorer**: A page where you can create speculative or real alliance scenarios. It will compare and summarize the speculative alliances.
 - **Niche Finder**: A page for finding teams that fulfill specific niches. The core idea is that comparing teams on a stat based solely on their average is an ineffective method of finding the "best" teams at something in a game based on specializations that can shift from match-to-match. Instead, this lets you to view upper quartiles and maxs to find the teams that have the highest ceiling. It can also adjust for accuracy to discredit the high ceiling yet inaccurate teams (not available for the 2026 game, since scoring isn't tracked with enough granularity to compute an accuracy stat).
 
+#### Page file layout
+
+The individual page scripts live in `Strategy-Dashboard/dashboard_pages/`, **not** a folder named `pages/`. This is deliberate: `main.py` builds its own navigation menu via `st.navigation()`/`st.Page()`, but Streamlit *also* auto-generates a navigation menu from the raw filenames of any folder literally named `pages/` sitting next to the entrypoint script, and shows that auto-generated menu (lowercase, underscored names, plus a spurious `main` entry) for a moment before our own menu takes over. Naming the folder anything else (here, `dashboard_pages/`) stops Streamlit from auto-discovering it, so only our menu is ever shown. If you add a new page script, add it to that folder and register it in `init_pages()` in `main.py` — don't create a `pages/` folder.
+
 #### Properly closing the dashboard
 
 **NOTE:** When you are done using the dashboard you should shut it all down in the following order:

@@ -31,13 +31,13 @@ def init_pages() -> None:
     """ Initializes all the pages to be used in Streamlit """
     # List of st.Page objects to use as pages
     pages = [
-        st.Page("pages/all_teams.py", title="All Teams", default=True),     # default=True tells Streamlit to take the user to this page first.
-        st.Page("pages/team_summary.py", title="Team Summary"),
-        st.Page("pages/match_schedule.py", title="Match Schedule"),
-        st.Page("pages/match_scouter.py", title="Match Scouter"),
-        st.Page("pages/alliance_explorer.py", title="Alliance Explorer"),
-        st.Page("pages/niche_finder.py", title="Niche Finder"),
-        st.Page("pages/defense.py", title="Defense"),
+        st.Page("dashboard_pages/all_teams.py", title="All Teams", default=True),     # default=True tells Streamlit to take the user to this page first.
+        st.Page("dashboard_pages/team_summary.py", title="Team Summary"),
+        st.Page("dashboard_pages/match_schedule.py", title="Match Schedule"),
+        st.Page("dashboard_pages/match_scouter.py", title="Match Scouter"),
+        st.Page("dashboard_pages/alliance_explorer.py", title="Alliance Explorer"),
+        st.Page("dashboard_pages/niche_finder.py", title="Niche Finder"),
+        st.Page("dashboard_pages/defense.py", title="Defense"),
     ]
 
     # Gives Streamlit the pages and starts off the navigation on the default
@@ -146,7 +146,9 @@ if st.session_state["currentEventCode"] == "":
     st.sidebar.write("Enter current event code.")
 
 # Always use our own page navigation (rather than Streamlit's automatic
-# pages/ discovery) so the sidebar doesn't flip between two different
-# navigation UIs depending on whether an event code has been entered yet.
-# Individual pages already handle an empty/missing event code gracefully.
+# discovery, which is why the page scripts live in dashboard_pages/ instead
+# of a folder literally named pages/ -- see the README) so the sidebar
+# doesn't flip between two different navigation UIs depending on whether an
+# event code has been entered yet. Individual pages already handle an
+# empty/missing event code gracefully.
 init_pages()
