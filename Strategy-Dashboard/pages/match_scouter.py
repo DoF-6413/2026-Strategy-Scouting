@@ -121,7 +121,7 @@ def write_match_summary(match_df: DataFrame, prescouting_df: DataFrame, match_ke
     with blue_alliance_col:
         st.write("**Blue Alliance**")
         selected_teams = st.pills(
-            label="",                       # The label for the selection (doesn't matter because we hide it)
+            label="Blue Alliance Teams",    # Hidden below via label_visibility, but still needed for accessibility
             label_visibility="collapsed",   # Ignores the label altogether
             options=blue_teams,             # The selections is the blue_teams list
             default=blue_teams,             # The default selection should have all of the blue teams selected
@@ -131,7 +131,7 @@ def write_match_summary(match_df: DataFrame, prescouting_df: DataFrame, match_ke
     with red_alliance_col:
         st.write("**Red Alliance**")
         selected_teams = st.pills(
-            label="",                       # The label for the selection (doesn't matter because we hide it)
+            label="Red Alliance Teams",     # Hidden below via label_visibility, but still needed for accessibility
             label_visibility="collapsed",   # Ignores the label altogether
             options=red_teams,              # The selections is the red_teams list
             default=red_teams,              # The default selection should have all of the red teams selected

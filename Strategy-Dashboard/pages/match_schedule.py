@@ -13,7 +13,7 @@ def color_team_matches(v: any) -> str | None:
     Returns:
         A string with a style in it if 6413 was the cell value OR `None` otherwise
     """
-    return f"background-color: {'gold'};" if str(v)=="6413" else None
+    return "background-color: gold; color: black;" if str(v)=="6413" else None
 
 
 def get_schedule_table(matches: list) -> DataFrame:
@@ -89,16 +89,23 @@ def main():
         schedule_df = schedule_df[schedule_df.eq('6413').any(axis=1)]
 
     # Style schedule data to make more readable - red teams as red, blue as blue, and 6413 highlighted.
+    # Text color is pinned to black alongside these light, fixed backgrounds
+    # so the cells stay readable regardless of the viewer's light/dark theme.
+    # Pale red (e.g. #fee) reads much closer to white than an equally
+    # "distant" pale blue (#eef) does to the eye, so red needs a deeper tint
+    # to look comparably visible.
+    red_style = {'background-color': '#fdd', 'color': 'black'}
+    blue_style = {'background-color': '#eef', 'color': 'black'}
     styled_df: DataFrame = (schedule_df.style
-                    .set_properties(**{'background-color': '#fee'}, subset=["Red 1", "Red 2", "Red 3"])
-                    .set_properties(**{'background-color': '#eef'}, subset=["Blue 1", "Blue 2", "Blue 3"])
+                    .set_properties(**red_style, subset=["Red 1", "Red 2", "Red 3"])
+                    .set_properties(**blue_style, subset=["Blue 1", "Blue 2", "Blue 3"])
                     .map(color_team_matches))
 
     # Write the table and listen for selections to redirect to the match scouter
     table = st.dataframe(
         data=styled_df,                                                 # The DataFrame to get data from (in this case our table)
         height=2000,                                                     # Height to use for the table. We set it to a large number to fill the page so you don't have to scroll
-        use_container_width=True,                                       # Expand the table width to fill the container's width
+        width="stretch",                                                # Expand the table width to fill the container's width
         column_config=({"Key": None} if not include_key_col else {}),   # Hide the "Key" column if the "Show match key" checkbox isn't checked
         hide_index=True,                                                 # Hide the DataFrame's index
         on_select="rerun",                                              # When a row is selected on the table, rerun the page

@@ -158,7 +158,7 @@ def main():
     table_event = st.dataframe(
         data=table_df,                  # DataFrame to write the table with
         height=1000,                    # The height of the table. Here it's just a large number because the table should fill the rest of the page
-        use_container_width=True,       # Use all the available width in the container
+        width="stretch",                # Use all the available width in the container
         hide_index=True,                # Hide the DataFrame's index
         on_select="rerun",              # When a row of the DataFrame is selected, rerun the page
         selection_mode="single-row",    # Only allow one row to be selected

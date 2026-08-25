@@ -55,21 +55,27 @@ def sidebar_inputs() -> None:
     - Refresh match schedule button
     - Refresh all button
     """
+    # Write an input to select the current event code and set the session state
+    # to the selection. Always shown, even with an empty MongoDB, since it's
+    # the only way to set the event code in the first place.
+    # The value is explicitly tied back to the permanent "currentEventCode"
+    # session state (same pattern as stat_selector/team_selector/etc. in
+    # utils.py) so the typed value keeps showing up across reruns/page
+    # switches instead of resetting to blank.
+    st.sidebar.text_input(
+        "Current event code",
+        value=st.session_state["currentEventCode"],
+        key="_currentEventCodeInput",
+        on_change=utils.input_change,
+        args=["currentEventCode", "_currentEventCodeInput"]
+        )
+
     # Get a list of all possible event codes that can be selected
     selectable_event_codes: list = utils.get_all_event_codes()
 
     if len(selectable_event_codes) == 0:
         st.write("No data found in the MongoDB. Check config.py and credentials.py")
         return
-
-    # Write an input to select the current event code and set the session state
-    # to the selection
-    st.sidebar.text_input(
-        "Current event code",
-        key="_currentEventCodeInput",
-        on_change=utils.input_change,
-        args=["currentEventCode", "_currentEventCodeInput"]
-        )
 
     # Sets default data events codes to session state if it has them
     # otherwise defaults to the full list of event codes
@@ -136,7 +142,11 @@ st.set_page_config(layout="wide")
 init_session_state_keys()
 sidebar_inputs()
 
-if st.session_state["currentEventCode"] != "":
-    init_pages()
-else:
-    st.write("Enter current event code.")
+if st.session_state["currentEventCode"] == "":
+    st.sidebar.write("Enter current event code.")
+
+# Always use our own page navigation (rather than Streamlit's automatic
+# pages/ discovery) so the sidebar doesn't flip between two different
+# navigation UIs depending on whether an event code has been entered yet.
+# Individual pages already handle an empty/missing event code gracefully.
+init_pages()

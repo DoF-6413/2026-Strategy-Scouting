@@ -175,7 +175,11 @@ def get_event_teams(event_code: str) -> list:
 
     filtered_df = df[ (df["docType"]==cfg.DT_EVENTS_TEAMS) & (df["event_key"]==event_code) ]
 
-    teams: list = filtered_df["team_number"].unique().astype(str).tolist()
+    # The events collection holds multiple docTypes (event/district/teams) in
+    # one DataFrame, so "team_number" gets promoted to float64 by the NaNs
+    # from docs that don't have it (e.g. 6413 -> 6413.0). Cast to int first so
+    # str() doesn't leave a trailing ".0" that breaks the int() sort below.
+    teams: list = filtered_df["team_number"].astype(int).astype(str).unique().tolist()
 
     # Sort descending by team number
     teams.sort(key=lambda x: int(x))
@@ -790,7 +794,7 @@ def write_team_summary_table(global_df: DataFrame, team_df: DataFrame, keys: lis
         func=apply_trend_color).format(precision=2)
 
     # Write the team's table
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(styled_df, width="stretch")
 
 
 def write_team_match_line_chart(team_df: DataFrame, keys: list, max_y: int = None) -> None:

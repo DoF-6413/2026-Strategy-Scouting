@@ -72,7 +72,7 @@ def main():
     st.dataframe(
         data=table_df,                  # DataFrame to write the table with
         height=1000,                    # The height of the table. Here it's just a large number because the table should fill the rest of the page
-        use_container_width=True,       # Use all the available width in the container
+        width="stretch",                # Use all the available width in the container
         hide_index=True,                # Hide the DataFrame's index
     )
 

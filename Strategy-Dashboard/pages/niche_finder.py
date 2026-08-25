@@ -149,7 +149,7 @@ def write_niche_table (df: DataFrame, teams: list, stat_keys: list, accuracy_key
     st.dataframe(
         data=styled_df,             # DataFrame to write the table with
         height=1000,                # Height of the table. Set to large number so it fills the height of the page
-        use_container_width=True,   # Use all the available width in the container
+        width="stretch",             # Use all the available width in the container
         hide_index=True,            # Hide the index of the table
     )
 
