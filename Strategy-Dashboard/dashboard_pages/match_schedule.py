@@ -119,7 +119,7 @@ def main():
         # This modifies the match input on the Match Scouter page directly
         st.session_state["match_scouter_selected_match"] = schedule_df.iloc[selected_row]["Key"].split("_")[1]
         # Opens the Match Scouter page.
-        st.switch_page("pages/match_scouter.py")
+        st.switch_page("dashboard_pages/match_scouter.py")
 
 
 main()

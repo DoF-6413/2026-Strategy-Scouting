@@ -105,7 +105,7 @@ def box_plots (df: DataFrame) -> None:
         # This will modify the Team Summary input directly
         st.session_state["team_summary_selected_teams"] = [selected_team]
         # Switch page to the team summary
-        st.switch_page("pages/team_summary.py")
+        st.switch_page("dashboard_pages/team_summary.py")
 
 def main():
     st.title("All Teams")
@@ -171,7 +171,7 @@ def main():
         # This modifies the Team Summary input directly
         st.session_state["team_summary_selected_teams"] = [table_df.iloc[selected_row]["Team"]]
         # Opens the Team Summary page
-        st.switch_page("pages/team_summary.py")
+        st.switch_page("dashboard_pages/team_summary.py")
 
 
 main()
