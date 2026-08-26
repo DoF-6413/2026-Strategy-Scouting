@@ -1,5 +1,4 @@
 import config as cfg
-import pandas as pd
 import streamlit as st
 import utils
 from pandas import DataFrame
@@ -61,8 +60,9 @@ def write_niche_table (df: DataFrame, teams: list, stat_keys: list, accuracy_key
     if not raw_only:
         table_columns.insert(1, "Total (Accuracy Adjusted)")
 
-    # The table DataFrame
-    table_df: DataFrame = DataFrame(columns=table_columns)
+    # Rows are collected here and built into the table DataFrame once after the loop,
+    # instead of concatenating onto an empty DataFrame each iteration (pandas deprecated that).
+    rows: list = []
 
     # Iterate over every team and add a row to the table for it
     for team in teams:
@@ -102,11 +102,11 @@ def write_niche_table (df: DataFrame, teams: list, stat_keys: list, accuracy_key
         # Adds the raw stat columns to the row
         row.update(dict((f"{cfg.STAT_KEY_TO_TEXT[stat_keys[i]]} (Raw)", val) for i, val in enumerate(scores)))
 
-        # Creates row_df, which is just the row as a DataFrame
-        row_df: DataFrame = DataFrame(row, index=[1])
+        # Adds the row to the list of rows
+        rows.append(row)
 
-        # Adds the row_df to the table_Df
-        table_df = pd.concat([table_df, row_df])
+    # The table DataFrame, built from all teams' rows at once
+    table_df: DataFrame = DataFrame(rows, columns=table_columns)
 
     def highlight_rows(val: DataFrame):
         """Highlight rows to indicate caution to user if the team doesn't fulfill niches

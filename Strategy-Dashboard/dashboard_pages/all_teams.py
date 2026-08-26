@@ -40,15 +40,24 @@ def box_plots (df: DataFrame) -> None:
             on_change=utils.input_change, args=[pills_session_state_key, pills_session_state_input_temp]
             )
 
+    # st.pills with selection_mode="single" returns None if the already-selected
+    # pill is clicked again (it toggles off). Treat that the same as "All Matches"
+    # instead of leaving the data-selection branches below unmatched.
+    if last_matches_selection is None:
+        last_matches_selection = "All Matches"
+
+    # dropna() before median() so a team with no (or all-NaN) values for this stat
+    # doesn't trigger numpy's "Mean of empty slice" RuntimeWarning, which its
+    # nanmedian implementation emits internally for an all-NaN slice.
     if last_matches_selection == "All Matches":
         # Calculate medians for each team
-        medians = df.groupby('team')[key].median().reset_index()
+        medians = df.groupby('team')[key].apply(lambda x: x.dropna().median()).reset_index()
     elif last_matches_selection == "Last Three Matches":
         # Calculate medians for each team
-        medians = df.groupby('team')[key].apply(lambda x: x.tail(3).median()).reset_index()
+        medians = df.groupby('team')[key].apply(lambda x: x.tail(3).dropna().median()).reset_index()
     elif last_matches_selection == "Last Five Matches":
         # Calculate medians for each team
-        medians = df.groupby('team')[key].apply(lambda x: x.tail(5).median()).reset_index()
+        medians = df.groupby('team')[key].apply(lambda x: x.tail(5).dropna().median()).reset_index()
 
     # Sort teams based on medians
     medians = medians.sort_values(by=key, ascending=False)
@@ -123,6 +132,10 @@ def main():
 
     df = df[df["team"].isin(filtered_teams)]
 
+    if df.empty:
+        st.info("No scouting data found yet for teams registered at the selected event(s).")
+        return
+
     # Writes box plots for the teams using the match DataFrame
     box_plots(df)
 
@@ -145,7 +158,7 @@ def main():
         team_row["Team"] = str(team)
         # Iterate over every key in table_keys and add a column to the table with it
         for key in table_keys:
-            mean = team_df[key].mean().round(2)    # Gets the team's mean in the stat rounded to two decimal points
+            mean = round(team_df[key].mean(), 2)    # Gets the team's mean in the stat rounded to two decimal points
             team_row[config.STAT_KEY_TO_TEXT[key]] = mean       # Adds a column to the row with the value of the mean. The column name is the stat key mapped to a human readable label
         # Add the team's row to the end of the table
         table_df = pd.concat([table_df, pd.DataFrame([team_row])], ignore_index=True)

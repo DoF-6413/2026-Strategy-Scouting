@@ -10,6 +10,7 @@ import scipy.stats as stats
 import streamlit as st
 from frc_6413_common import credentials as creds
 from pandas import DataFrame
+from pandas.util import hash_pandas_object
 from PIL import Image
 from plotly.subplots import make_subplots
 from pymongo import MongoClient
@@ -225,6 +226,9 @@ def slope_to_trend_index(slope: float) -> int:
     """
     thresholds: list = cfg.TREND_SLOPE_MAPPING
 
+    if math.isnan(slope):
+        return 2
+
     if slope <= thresholds[0]:
         return 0
     elif slope < thresholds[1]:
@@ -345,12 +349,12 @@ def write_radar_chart (values: list, axes: list, trace_names: list, axes_max: in
             theta=axes,                                                 # The axes
             fill="toself",
             name=trace_names[i],                                        # The name of the trace for the legend and hover tooltip
-            marker_color=colors[i],                                     # The color of the alliance's trace
+            marker_color=colors[i % len(colors)],                       # The color of the alliance's trace
             customdata=[trace_names[i] for x in axes],           # customdata to be used for the hovertemplate
             hovertemplate='<b>%{customdata}</b><br><br>' +              # The template of text for the hover tooltip
             '<b>%{theta}</b>: %{r}' + '<extra></extra>',
             hoverlabel=dict(                                            # Styles the hover tooltip to match the color of the alliance
-                bgcolor=colors[i],
+                bgcolor=colors[i % len(colors)],
                 font_color="white"
             )
         ))
@@ -401,6 +405,10 @@ def sort_matches(matches: list | DataFrame) -> dict:
         matches.sort(key=lambda x: comp_level_value[x["comp_level"]] + (x["match_number"] if x["comp_level"]=="qm" else x["set_number"]))
         return matches
     elif isinstance(matches, DataFrame):
+        # Copy first since matches may be a filtered slice of another DataFrame;
+        # assigning columns on a slice would otherwise raise SettingWithCopyWarning.
+        matches = matches.copy()
+
         # Map comp level value to a value that will be added to every match number in sorting
         # by adding matches length, we ensure we will always sort from quals-finals in order.
         comp_level_value = {
@@ -409,8 +417,8 @@ def sort_matches(matches: list | DataFrame) -> dict:
             "f": matches["matchNumber"].max()*2
         }
         matches["sortVal"] = [int(comp_level_value[row["compLevel"]]) + row["matchNumber"] for i,row in matches.iterrows()]
-        # Sorts the matches
-        matches = matches.groupby(by="eventCode").apply(lambda x: x.sort_values(by="sortVal", ascending=True))
+        # Sorts within each event by sortVal, grouping events together
+        matches = matches.sort_values(by=["eventCode", "sortVal"], ascending=True)
         matches = matches.reset_index(drop=True)
         return matches
 
@@ -581,7 +589,24 @@ def team_selector(selector_key: str, multiselect: bool) -> list:
 
 #region TEAM SUMMARY
 
-@st.cache_data
+def _hash_df_with_notes(df: DataFrame) -> bytes:
+    """Hashes a DataFrame for Streamlit's cache key, JSON-encoding the "notes"
+    column first since it holds dicts, which pandas' hasher can't handle
+    (it would otherwise silently fall back to slow pickling).
+
+    Args:
+        df (DataFrame): The DataFrame to hash (``match_df`` or ``prescouting_df``).
+
+    Returns:
+        bytes: A stable hash of the DataFrame's contents.
+    """
+    if "notes" in df.columns:
+        df = df.copy()
+        df["notes"] = df["notes"].map(json.dumps)
+
+    return hash_pandas_object(df, index=True).values.tobytes()
+
+@st.cache_data(hash_funcs={DataFrame: _hash_df_with_notes})
 def write_team_summaries(match_df: DataFrame, prescouting_df: DataFrame, team_numbers: list) -> None:
     """Generates a summary of the data for each team passed to the script using match data in ``match_df``.
     Every team summary contains three elements:
@@ -659,7 +684,7 @@ def write_team_summaries(match_df: DataFrame, prescouting_df: DataFrame, team_nu
                 st.subheader("Table")
 
                 # List of tabs each titled after the keys of table_key_dict
-                tabs: list = st.tabs(table_key_dict.keys())
+                tabs: list = st.tabs(list(table_key_dict.keys()))
 
                 # Loop through each tab and generate the summary table for each
                 for j, tab in enumerate(tabs):
@@ -689,7 +714,7 @@ def write_team_summaries(match_df: DataFrame, prescouting_df: DataFrame, team_nu
                 # Dictionary storing every chart tab and then, under those keys, the stats for each chart tab.
                 chart_key_dict: dict = cfg.TEAM_SUMMARY_LINE_CHART_KEYS
                 # List of tabs, each titled after the keys of table_key_dict
-                tabs: list = st.tabs(chart_key_dict.keys())
+                tabs: list = st.tabs(list(chart_key_dict.keys()))
 
 
                 # Loop through each tab and generate the line chart for each
@@ -772,12 +797,15 @@ def write_team_summary_table(global_df: DataFrame, team_df: DataFrame, keys: lis
 
     # Write the table cell values using a DataFrame
     table_df = DataFrame(columns=keys, index=["Average", "SD", "Max", "Rank"])
-    table_df.loc["Average"] = [f'{averages[i].round(2)} {trend_texts[i]}'
+    table_df.loc["Average"] = [f'{averages.iloc[i].round(2)} {trend_texts[i]}'
                                for i in range(len(sd))]
-    table_df.loc["SD"] = [f"± {str(sd[i].round(2))}"
+    table_df.loc["SD"] = [f"± {str(sd.iloc[i].round(2))}"
                           for i in range(len(sd))]
-    table_df.loc["Max"] = maxs
-    table_df.loc["Rank"] = ranks
+    # Format Max/Rank as strings too so every row in a column shares one dtype;
+    # mixing raw floats/ints with the Average/SD strings above produces an
+    # object-dtype column that pyarrow can't serialize for st.dataframe.
+    table_df.loc["Max"] = maxs.apply(lambda v: "-" if isinstance(v, float) and math.isnan(v) else f"{round(v, 2)}")
+    table_df.loc["Rank"] = {key: str(rank) for key, rank in ranks.items()}
 
     # Change the column labels from raw stat keys to human readable labels
     table_df.rename(columns=lambda x: cfg.STAT_KEY_TO_TEXT[x], inplace=True)
@@ -1121,7 +1149,7 @@ def write_alliance_compare_box_plot(df: DataFrame, alliances: list, alliance_nam
             q3=[alliance_fns[3]],                           # The third quartile
             upperfence=[alliance_fns[4]],                   # The max
             name=alliance_names[i], x=[alliance_names[i]],  # The alliance's name. Used for the legend and hover tooltip
-            marker_color=colors[i],                         # The alliance's marker color
+            marker_color=colors[i % len(colors)],           # The alliance's marker color
         ))
 
     # Update the graph layout to look nicer and label axes
@@ -1211,6 +1239,13 @@ def write_alliance_summaries(match_df: DataFrame, prescouting_df: DataFrame, all
     # Iterate over every alliance and write their box plots and team summaries
     for index, teams in enumerate(alliances):
         st.subheader(alliance_names[index])
+
+        # Skip alliances with no teams selected yet (e.g. a newly-added blank alliance slot)
+        # instead of trying to write summaries/charts for zero teams.
+        if len(teams) == 0:
+            st.write("No teams selected for this alliance yet.")
+            continue
+
         # Writes the two tabs for charts and team summaries
         charts_tab, summaries_tab = st.tabs(
             ["Alliance Charts", "Team Summaries"])
@@ -1260,7 +1295,7 @@ def write_alliance_summaries(match_df: DataFrame, prescouting_df: DataFrame, all
                             x=team_df["team"],                          # x-axis values should be the team number
                             y=team_df[stat],                            # y-axis values should be the stat's values
                             name=team,                                  # The name of the trace is the team number
-                            marker_color=colors[i],                     # The color of the team's box plot
+                            marker_color=colors[i % len(colors)],       # The color of the team's box plot
                             showlegend=False if index > 1 else True     # Only write to the legend for the first plot to avoid repeat names in the legend
                         ),
                         row=row, col=col,                               # Sets the row and column to write the box plot subplot to
@@ -1276,8 +1311,11 @@ def write_alliance_summaries(match_df: DataFrame, prescouting_df: DataFrame, all
                     # Append the team's highest value of the stat to max_ys
                     max_ys.append(team_df[stat].max())
                 # Set the y-axis range for all graphs to go to the highest max_ys value.
-                # We do this so graphs can be directly compared side-by-side with the same y-axis
-                fig.update_yaxes(range=[0, max(max_ys) + 2])
+                # We do this so graphs can be directly compared side-by-side with the same y-axis.
+                # max_ys is empty when the alliance has no teams selected yet; leave the axis
+                # auto-ranging in that case instead of crashing.
+                if max_ys:
+                    fig.update_yaxes(range=[0, max(max_ys) + 2])
 
                 # Set the height of the total graph grid
                 fig.update_layout(height=450 * rows)
