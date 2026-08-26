@@ -7,8 +7,11 @@ from pandas import DataFrame
 
 
 @st.fragment
+# TODO: Give the option for a per-match line/scatter chart here, color-coded
+# per team, as an alternative to the box plot (which only shows the
+# distribution, not the match-to-match trend for each team).
 def write_team_compare_box_plot(df: DataFrame, teams: list) -> None:
-    """Writes a box plot comparing teams on a chosen stat. 
+    """Writes a box plot comparing teams on a chosen stat.
 
     The desired stat is selected in this function using ``utils.stat_selector``
 
