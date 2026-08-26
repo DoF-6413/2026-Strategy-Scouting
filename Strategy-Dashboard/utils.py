@@ -994,6 +994,16 @@ def write_team_comments(match_df: DataFrame, prescouting_df: DataFrame) -> None:
     # Group all match data entries by event code and sort within each event code by match number
     match_df = sort_matches(match_df)
 
+    # TODO: prescouting_df here isn't filtered to the current event (see
+    # get_prescouting_data()/write_team_summaries callers), so a team's
+    # prescouting from earlier events this season shows up here too even
+    # though it's likely stale by their 2nd/3rd event. Filter to
+    # st.session_state["currentEventCode"] before display.
+    # TODO: When there IS prescouting data, only show non-blank
+    # Strengths/Weaknesses/Observations subheaders (skip blank ones instead
+    # of showing an empty section). When there's none at all, show
+    # "No prescouting data collected." instead of the header with nothing
+    # under it.
     if len(prescouting_df) > 0:
         st.header("Pre-scouting")
         for key in prescouting_df["notes"].values[0].keys():
@@ -1002,6 +1012,9 @@ def write_team_comments(match_df: DataFrame, prescouting_df: DataFrame) -> None:
 
     st.header("Match Comments")
 
+    # TODO: Default Match Comments to the current event only, with a toggle
+    # (like the team-number filter on Match Schedule) to include comments
+    # from other events in dataEventCodes.
     # Get a list of all events the script has data from.
     events: list = match_df["eventCode"].unique().tolist()
 

@@ -70,6 +70,13 @@ def sidebar_inputs() -> None:
         args=["currentEventCode", "_currentEventCodeInput"]
         )
 
+    # TODO: Sort selectable_event_codes descending by year (event codes are
+    # "<year><rest>", e.g. "2026azfg") so current-season events sort before
+    # older ones instead of the list being alphabetical/insertion order. If
+    # currentEventCode from a previous run can be recovered (session state
+    # currently resets to "" on every restart, so this needs persistence
+    # added first, e.g. a local file or query param), pin it to the front
+    # regardless of the year sort so it's not buried in the multiselect list.
     # Get a list of all possible event codes that can be selected
     selectable_event_codes: list = utils.get_all_event_codes()
 
