@@ -10,7 +10,6 @@ import scipy.stats as stats
 import streamlit as st
 from frc_6413_common import credentials as creds
 from pandas import DataFrame
-from pandas.util import hash_pandas_object
 from PIL import Image
 from plotly.subplots import make_subplots
 from pymongo import MongoClient
@@ -600,24 +599,6 @@ def team_selector(selector_key: str, multiselect: bool) -> list:
 
 #region TEAM SUMMARY
 
-def _hash_df_with_notes(df: DataFrame) -> bytes:
-    """Hashes a DataFrame for Streamlit's cache key, JSON-encoding the "notes"
-    column first since it holds dicts, which pandas' hasher can't handle
-    (it would otherwise silently fall back to slow pickling).
-
-    Args:
-        df (DataFrame): The DataFrame to hash (``match_df`` or ``prescouting_df``).
-
-    Returns:
-        bytes: A stable hash of the DataFrame's contents.
-    """
-    if "notes" in df.columns:
-        df = df.copy()
-        df["notes"] = df["notes"].map(json.dumps)
-
-    return hash_pandas_object(df, index=True).values.tobytes()
-
-@st.cache_data(hash_funcs={DataFrame: _hash_df_with_notes})
 def write_team_summaries(match_df: DataFrame, prescouting_df: DataFrame, team_numbers: list) -> None:
     """Generates a summary of the data for each team passed to the script using match data in ``match_df``.
     Every team summary contains three elements:
