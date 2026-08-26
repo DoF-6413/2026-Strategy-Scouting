@@ -87,6 +87,8 @@ All Tools scripts are run from the **repo root**:
 | Get Match Breakdown | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v2.py` |
 | Get Match Breakdown (with EPA) | `uv run --package frc-6413-scouting-tools python Tools/get_match_breakdown_2026_v3.py` |
 
+**Note:** Run **Get Event Teams Simple** for each event before using the Strategy Dashboard against it — the All Teams page and Match Scouter/Alliance Explorer stat rankings both depend on the registered-teams data it stores. Without it, All Teams shows no selectable teams and rankings show `-`.
+
 ## Code Quality (Ruff)
 
 Run from the **repo root**:

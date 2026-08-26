@@ -59,6 +59,9 @@ def box_plots (df: DataFrame) -> None:
         # Calculate medians for each team
         medians = df.groupby('team')[key].apply(lambda x: x.tail(5).dropna().median()).reset_index()
 
+    # TODO: team_order currently sorts the x-axis by median value (descending),
+    # which makes it hard to find a specific team. Consider sorting by team
+    # number (ascending) instead, or adding a toggle between the two.
     # Sort teams based on medians
     medians = medians.sort_values(by=key, ascending=False)
     team_order = medians['team'].tolist()
@@ -128,6 +131,13 @@ def main():
         return
 
     event_teams = utils.get_event_teams(st.session_state["currentEventCode"])
+    if len(event_teams) == 0:
+        st.warning(
+            "No registered teams found for this event. Run the \"Get Event Teams "
+            "Simple\" tool (Tools/get_event_teams_simple_2025_v1.py) for this event "
+            "code, then reload this page."
+        )
+        return
     filtered_teams = [team for team in event_teams if len(df[df["team"]==team]) > 0]
 
     df = df[df["team"].isin(filtered_teams)]

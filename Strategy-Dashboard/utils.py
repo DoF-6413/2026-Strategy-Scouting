@@ -87,6 +87,11 @@ def get_match_data() -> DataFrame:
     db: Database = get_mongo_db()
     collection = db[cfg.V5_COL_SCOUTING]
 
+    # TODO: This always pulls every event in dataEventCodes (which can include
+    # past events from earlier this season). The Matches chart on Match
+    # Scouter and Team Summary would benefit from a "this event only" toggle
+    # (default on), similar to the team-number filter on Match Schedule, so
+    # teams like 1101 don't show prior-event data mixed in unless wanted.
     # Convert the data to a DataFrame
     df: DataFrame = DataFrame(list(collection.find({
         "eventCode": {"$in": st.session_state["dataEventCodes"]},
@@ -315,7 +320,13 @@ def get_averages_ranks(df: DataFrame, keys: list, team_averages: list) -> dict:
             averages[key] = sorted(averages[key], reverse=True)
         # Adds the teams ranking to a rankings dict, where each key holds a stat's mean
         for key in keys:
-            rankings[key] = averages[key].index(team_averages[key]) + 1
+            # team_averages[key] won't be in averages[key] if get_event_teams() couldn't
+            # find this team (eg. the event's team registration data hasn't been synced
+            # to MongoDB yet). Fall back to "-" instead of crashing on a ValueError.
+            if team_averages[key] in averages[key]:
+                rankings[key] = averages[key].index(team_averages[key]) + 1
+            else:
+                rankings[key] = "-"
     else:
         for key in keys:
             rankings[key] = "-"

@@ -223,6 +223,8 @@ When you first open the dashboard, you should select the current event code and 
 - **Current Event Code** is the event code you are currently at or looking for data in anticipation of.  It's the event code that is used to get all the team numbers, match schedule, etc.
 - **Data Event Codes** is a list of event codes containing every event you want the dashboard to use data from.  If you want to only look at data from the current competition, remove everything except that entry.
 
+**Before using the dashboard at a live event**, run the **Get Event Teams Simple** tool for that event code (see [UV_SCRIPTS.md](UV_SCRIPTS.md)) so the registered-teams data it needs is in MongoDB. Without it, the All Teams page has no selectable teams and stat rankings on Match Scouter/Alliance Explorer show `-`.
+
 #### Brief overview of pages
 
 - **All Teams**: A page comparing all teams attending the selected current event with box plots and a table.
