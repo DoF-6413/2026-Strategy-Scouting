@@ -51,7 +51,7 @@ def sidebar_inputs() -> None:
     Adds necessary inputs to the sidebar:
 
     - Current event code selector
-    - Data event codes selector
+    - Additional event codes selector
     - Refresh match schedule button
     - Refresh all button
     """
@@ -84,17 +84,25 @@ def sidebar_inputs() -> None:
         st.write("No data found in the MongoDB. Check config.py and credentials.py")
         return
 
-    # Sets default data events codes to session state if it has them
-    # otherwise defaults to the full list of event codes
+    # Data queries always include the Current Event Code automatically (see
+    # utils.get_scouting_data/get_match_data), so this list is only for
+    # events *in addition to* the current one (e.g. to compare against a
+    # previous event). It defaults to empty (see init_session_state_keys) so
+    # a user who only sets Current Event Code sees just that event's data,
+    # never other events' data pulled in silently.
     default_data_event_codes = st.session_state["dataEventCodes"]
-    if len(st.session_state["dataEventCodes"]) == 0:
-        default_data_event_codes = selectable_event_codes
-        st.session_state["dataEventCodes"] = default_data_event_codes
 
-    # Write the data event codes input
+    # Don't offer the current event as an "additional" option since it's
+    # already included automatically.
+    additional_event_code_options = [
+        code for code in selectable_event_codes
+        if code != st.session_state["currentEventCode"]
+    ]
+
+    # Write the additional data event codes input
     st.sidebar.multiselect(
-        label="Data Event Codes",                           # The input's label
-        options=selectable_event_codes,                     # Every option that can be selected in the dropdown
+        label="Additional Event Codes",                     # The input's label
+        options=additional_event_code_options,               # Every option that can be selected in the dropdown
         default=default_data_event_codes,                   # The default selected options
         key="_dataEventCodesInput",                         # A session_state key where the data will be temporary stored. Note storage from this method is NOT the same as normal session state. It is TEMPORARY
         on_change=utils.input_change,                       # Callback function used when the value is changed
@@ -129,11 +137,8 @@ def sidebar_inputs() -> None:
 
     # Button to refresh scouting data by clearing the cache
     if st.sidebar.button("Refresh Scouting Data"):
-        mongo_func = utils.get_scouting_data
-        match_data_func = utils.get_match_data
-
-        mongo_func.clear()
-        match_data_func.clear()
+        utils._get_scouting_data.clear()
+        utils._get_match_data.clear()
 
         st.rerun()
 

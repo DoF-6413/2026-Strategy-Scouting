@@ -7,17 +7,20 @@ from pymongo.database import Database
 
 
 @st.cache_data(ttl=90)
-def get_defense_data() -> DataFrame:
+def _get_defense_data(data_event_codes: tuple) -> DataFrame:
     db: Database = utils.get_mongo_db()
     collection = db[cfg.V5_COL_SCOUTING]
 
     # Convert the data to a DataFrame
     df: DataFrame = DataFrame(list(collection.find({
-        "eventCode": {"$in": st.session_state["dataEventCodes"]},
+        "eventCode": {"$in": list(data_event_codes)},
         "defense": {"$exists": True}
     })))
 
     return df
+
+def get_defense_data() -> DataFrame:
+    return _get_defense_data(utils.get_effective_event_codes())
 
 def get_team_defense_entries(defense_df: DataFrame, team: str) -> DataFrame:
     team_df = defense_df[defense_df["_id"].str.split("_frc").str[1] == team]

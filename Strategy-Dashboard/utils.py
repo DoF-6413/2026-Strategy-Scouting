@@ -32,9 +32,30 @@ def get_mongo_db () -> Database:
 
     return db
 
+def get_effective_event_codes() -> tuple:
+    """Returns the set of event codes data should be pulled from: the Current
+    Event Code plus any Additional Event Codes, deduplicated.
+
+    Returns:
+        tuple: The effective event codes, suitable as a cached-function argument.
+    """
+    current_event_code: str = st.session_state["currentEventCode"]
+    additional_event_codes: list = st.session_state["dataEventCodes"]
+
+    event_codes = set(additional_event_codes)
+    if current_event_code != "":
+        event_codes.add(current_event_code)
+
+    return tuple(event_codes)
+
 @st.cache_data(ttl=90)
-def get_scouting_data() -> DataFrame:
-    """Gets the data stored in the scouting collection in the MongoDB as a DataFrame. Filters the data to only include data from selected events.
+def _get_scouting_data(data_event_codes: tuple) -> DataFrame:
+    """Gets the data stored in the scouting collection in the MongoDB as a DataFrame. Filters the data to only include data from ``data_event_codes``.
+
+    ``data_event_codes`` is taken as an explicit argument (rather than read from
+    ``st.session_state`` inside the cached function) so that Streamlit's
+    argument-based cache key changes, and therefore the cache is busted, when
+    the user changes their Current Event Code or Additional Event Codes selection.
 
     Returns:
         DataFrame: DataFrame containing the data from the MongoDB.
@@ -51,11 +72,19 @@ def get_scouting_data() -> DataFrame:
         return DataFrame(columns=["eventCode", "docType", "team"])
 
     # Filter the data to only include data from selected events
-    df = df[df["eventCode"].isin(st.session_state["dataEventCodes"])]
+    df = df[df["eventCode"].isin(data_event_codes)]
 
     df["team"] = df["team"].astype(str)
 
     return df
+
+def get_scouting_data() -> DataFrame:
+    """Gets the data stored in the scouting collection in the MongoDB as a DataFrame. Filters the data to only include data from selected events.
+
+    Returns:
+        DataFrame: DataFrame containing the data from the MongoDB.
+    """
+    return _get_scouting_data(get_effective_event_codes())
 
 @st.cache_data(ttl=90)
 def get_prescouting_data() -> DataFrame:
@@ -75,6 +104,31 @@ def get_prescouting_data() -> DataFrame:
     return df
 
 @st.cache_data(ttl=90)
+def _get_match_data(data_event_codes: tuple) -> DataFrame:
+    """Gets the data stored in the MongoDB as a DataFrame. Filters the data to only include data from ``data_event_codes``.
+
+    Filters the data to only include match scouting doctypes
+
+    ``data_event_codes`` is taken as an explicit argument (rather than read from
+    ``st.session_state`` inside the cached function) so that Streamlit's
+    argument-based cache key changes, and therefore the cache is busted, when
+    the user changes their Current Event Code or Additional Event Codes selection.
+
+    Returns:
+        DataFrame: DataFrame containing the data from the MongoDB.
+    """
+    db: Database = get_mongo_db()
+    collection = db[cfg.V5_COL_SCOUTING]
+
+    # Convert the data to a DataFrame
+    df: DataFrame = DataFrame(list(collection.find({
+        "eventCode": {"$in": list(data_event_codes)},
+        "docType": cfg.DT_SCOUTING_MATCH,
+        "team": {"$exists": True}
+    })))
+
+    return df
+
 def get_match_data() -> DataFrame:
     """Gets the data stored in the MongoDB as a DataFrame. Filters the data to only include data from selected events.
 
@@ -83,22 +137,7 @@ def get_match_data() -> DataFrame:
     Returns:
         DataFrame: DataFrame containing the data from the MongoDB.
     """
-    db: Database = get_mongo_db()
-    collection = db[cfg.V5_COL_SCOUTING]
-
-    # TODO: This always pulls every event in dataEventCodes (which can include
-    # past events from earlier this season). The Matches chart on Match
-    # Scouter and Team Summary would benefit from a "this event only" toggle
-    # (default on), similar to the team-number filter on Match Schedule, so
-    # teams like 1101 don't show prior-event data mixed in unless wanted.
-    # Convert the data to a DataFrame
-    df: DataFrame = DataFrame(list(collection.find({
-        "eventCode": {"$in": st.session_state["dataEventCodes"]},
-        "docType": cfg.DT_SCOUTING_MATCH,
-        "team": {"$exists": True}
-    })))
-
-    return df
+    return _get_match_data(get_effective_event_codes())
 
 @st.cache_data(ttl=600)
 def get_event_schedule(event_code: str) -> list:
