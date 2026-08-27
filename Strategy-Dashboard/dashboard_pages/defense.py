@@ -71,10 +71,10 @@ def main():
         table_df = concat([table_df, DataFrame([team_row])], ignore_index=True)
 
     # TODO: This table (like the ones on All Teams and Niche Finder) initially
-    # sorts by a stat column, so a user has to manually re-sort by Team every
-    # time to browse teams in order. Consider defaulting all team-number
-    # tables to ascending Team order for better UX, with the stat sort as
-    # something the user opts into via the column header.
+    # sorts descending by "Average Defense Rating", so a user has to manually
+    # re-sort by Team every time to browse teams in order. Consider defaulting
+    # all team-number tables to ascending Team order for better UX, with the
+    # stat sort as something the user opts into via the column header.
     # Sort the table using the values in the first column
     table_df = table_df.sort_values(by="Average Defense Rating", ascending=False)
 

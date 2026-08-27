@@ -136,7 +136,8 @@ def write_niche_table (df: DataFrame, teams: list, stat_keys: list, accuracy_key
             return [""] * len(val)                              # Multiplying the style by the length of val ensures every column in the row gets highlighted
 
     # TODO: This table (like the ones on All Teams and Defense) initially
-    # sorts by a stat column, so a user has to manually re-sort by Team every
+    # sorts descending by "Total (Raw)" or "Total (Accuracy Adjusted)"
+    # (whichever is active), so a user has to manually re-sort by Team every
     # time to browse teams in order. Consider defaulting all team-number
     # tables to ascending Team order for better UX, with the stat sort as
     # something the user opts into via the column header.

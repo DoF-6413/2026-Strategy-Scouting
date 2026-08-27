@@ -182,10 +182,12 @@ def main():
         table_df = pd.concat([table_df, pd.DataFrame([team_row])], ignore_index=True)
 
     # TODO: This table (like the ones on Niche Finder and Defense) initially
-    # sorts by a stat column, so a user has to manually re-sort by Team every
-    # time to browse teams in order. Consider defaulting all team-number
-    # tables to ascending Team order for better UX, with the stat sort as
-    # something the user opts into via the column header.
+    # sorts descending by its primary displayed stat column (here, whichever
+    # stat is first in table_keys, e.g. "Total Game Pieces"), so a user has to
+    # manually re-sort by Team every time to browse teams in order. Consider
+    # defaulting all team-number tables to ascending Team order for better
+    # UX, with the stat sort as something the user opts into via the column
+    # header.
     # Sort the table using the values in the first column
     table_df = table_df.sort_values(by=config.STAT_KEY_TO_TEXT[table_keys[0]], ascending=False)
 
