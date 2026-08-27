@@ -79,6 +79,7 @@ All Tools scripts are run from the **repo root**:
 | Script | Command |
 |--------|---------|
 | Random Data Generator | `uv run --package frc-6413-scouting-tools python Tools/RandomData2026_v2.py` |
+| Random Data to MongoDB (matches/events) | `uv run --package frc-6413-scouting-tools python Tools/random_data_to_mongo_v1.py <random_data_file> <event_code>` |
 | MongoDB to MongoDB | `uv run --package frc-6413-scouting-tools python Tools/MongoDB_to_MongoDB_v1.py` |
 | Get Event Matches (2026) | `uv run --package frc-6413-scouting-tools python Tools/get_event_matches_2026_v3.py` |
 | Get Event List of Teams | `uv run --package frc-6413-scouting-tools python Tools/get_event_list_of_teams_2025_v1.py` |
