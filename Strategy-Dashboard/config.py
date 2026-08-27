@@ -13,6 +13,9 @@ Valid options: "random" or "real"
 # The DB/collection/docType names are shared with the rest of the scripts in
 # this repo, so they live in frc_6413_common.config instead of being
 # duplicated here.
+# TODO: V5_COL_SCHEDULE is unused by the Dashboard - it never queries the
+# "schedule" collection. Alliance/schedule info actually comes from
+# V5_COL_MATCHES (see utils.get_event_schedule()). Remove this import.
 from frc_6413_common.config import (  # noqa: E402, F401
     DB_NAME,
     DT_EVENTS_TEAMS,
