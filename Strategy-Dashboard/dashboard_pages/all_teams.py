@@ -59,12 +59,10 @@ def box_plots (df: DataFrame) -> None:
         # Calculate medians for each team
         medians = df.groupby('team')[key].apply(lambda x: x.tail(5).dropna().median()).reset_index()
 
-    # TODO: team_order currently sorts the x-axis by median value (descending),
-    # which makes it hard to find a specific team. Consider sorting by team
-    # number (ascending) instead, or adding a toggle between the two.
-    # Sort teams based on medians
-    medians = medians.sort_values(by=key, ascending=False)
-    team_order = medians['team'].tolist()
+    # Sort the x-axis by team number (ascending) so a specific team is easy to
+    # find in the chart. Unlike the table below, there's no need for a
+    # stat-based sort order here.
+    team_order = sorted(medians['team'].tolist(), key=int)
 
     # Add the trend colors to the box plots
     box_df = DataFrame()
@@ -79,23 +77,24 @@ def box_plots (df: DataFrame) -> None:
         values = list(team_df[key]) # Get every value of the desired key
         slope = (stats.linregress(list(range(1, len(values) + 1)), values)[0] if len(values) > 1 else 0) #Get the slope of the trend
 
-        color = cfg.SLOPE_COLOR_MAPPING[utils.slope_to_trend_index(slope) if slope is not None else 2]
+        trend_index = utils.slope_to_trend_index(slope) if slope is not None else 2
 
-        team_df["trend"] = color # Add the color to the trend column
+        team_df["trend"] = cfg.SLOPE_LABEL_MAPPING[trend_index] # Add the trend label to the trend column
         box_df = pd.concat([box_df, team_df], ignore_index=True)
 
-    # Creates a color map necessary for plotly. Plotly can't just take the color param, it needs a color_discrete_map
-    used_trend_colors = box_df["trend"].unique()
-    color_map = {used_trend_colors[i]: used_trend_colors[i] for i in range(len(used_trend_colors))}
+    # Maps each trend label to its color for the legend/boxes. Built from the
+    # full label list (not just labels present in box_df) so the legend
+    # always uses a consistent color-to-label mapping.
+    color_map = dict(zip(cfg.SLOPE_LABEL_MAPPING, cfg.SLOPE_COLOR_MAPPING))
 
     # Write the box plot
     fig = px.box(
-        data_frame=box_df,                      # Provides a DataFrame to get data for the chart from
-        x="team",                               # Column in the DataFrame (box_df) storing the x-axis values
-        y=key,                                  # Column in the DataFrame (box_df) storing the y-axis values
-        color="trend",                          # Column in the DataFrame (box_df) storing the color values
-        color_discrete_map=color_map,           # Maps color keys from the "colors" field to actual colors
-        category_orders={'team': team_order}    # Orders box plots according to the team_order
+        data_frame=box_df,                                       # Provides a DataFrame to get data for the chart from
+        x="team",                                                # Column in the DataFrame (box_df) storing the x-axis values
+        y=key,                                                   # Column in the DataFrame (box_df) storing the y-axis values
+        color="trend",                                           # Column in the DataFrame (box_df) storing the color values
+        color_discrete_map=color_map,                            # Maps trend labels to colors
+        category_orders={'team': team_order, 'trend': cfg.SLOPE_LABEL_MAPPING}    # Orders box plots/legend
     )
     fig.update_layout(
         xaxis=dict(
@@ -104,7 +103,14 @@ def box_plots (df: DataFrame) -> None:
         ),
         yaxis_title=cfg.STAT_KEY_TO_TEXT[key],  # Labels y-axis according to the stat key mapped to human readable text
         hovermode="closest",                    # Show the hover menu for the closest box
-        showlegend=False,                       # Hide the legend
+        legend_title_text="Trend",              # Label the legend explaining the box colors
+        legend=dict(
+            orientation="h",                    # Lay the legend out horizontally...
+            yanchor="top",
+            y=-0.15,                            # ...and place it below the plot area instead of
+            xanchor="center",                   # crowding the right side, which matters most at
+            x=0.5,                              # large events with many teams on the x-axis.
+        ),
         boxmode="overlay"                       # setting the boxmode to overlay fixes a display bug where all the boxes are extremely thin
     )
 
@@ -164,8 +170,10 @@ def main():
             continue
 
         team_row = dict()
-        # Sets the value of the Team column to the team number
-        team_row["Team"] = str(team)
+        # Sets the value of the Team column to the team number as an int so
+        # clicking the column header sorts numerically instead of
+        # alphabetically (which would put "60" after "1101").
+        team_row["Team"] = int(team)
         # Iterate over every key in table_keys and add a column to the table with it
         for key in table_keys:
             mean = round(team_df[key].mean(), 2)    # Gets the team's mean in the stat rounded to two decimal points
@@ -173,9 +181,22 @@ def main():
         # Add the team's row to the end of the table
         table_df = pd.concat([table_df, pd.DataFrame([team_row])], ignore_index=True)
 
+    # TODO: This table (like the ones on Niche Finder and Defense) initially
+    # sorts by a stat column, so a user has to manually re-sort by Team every
+    # time to browse teams in order. Consider defaulting all team-number
+    # tables to ascending Team order for better UX, with the stat sort as
+    # something the user opts into via the column header.
     # Sort the table using the values in the first column
     table_df = table_df.sort_values(by=config.STAT_KEY_TO_TEXT[table_keys[0]], ascending=False)
 
+    # TODO: Header text is left-aligned and value text is right-aligned in
+    # this table, which some find hard to read (would prefer centered).
+    # st.dataframe renders as a canvas-based grid (glide-data-grid), so CSS
+    # can't restyle its cells, and released column_config classes (as of
+    # Streamlit 1.55) don't expose a text-alignment option yet, though one is
+    # in Streamlit's PR backlog. Revisit once that ships, or switch to a
+    # custom HTML table (which would drop row-click-to-open-Team-Summary and
+    # native column-header sorting) if centering is needed sooner.
     # Write the table
     # table_event stores the currently selected row(s) in the DataFrame
     table_event = st.dataframe(
@@ -191,8 +212,14 @@ def main():
     if len(table_event.selection["rows"]):
         selected_row = table_event.selection["rows"][0]
         # Set the selected team in the Team Summary to the team who's row was selected
-        # This modifies the Team Summary input directly
-        st.session_state["team_summary_selected_teams"] = [table_df.iloc[selected_row]["Team"]]
+        # This modifies the Team Summary input directly.
+        # Select the "Team" column first, then index into it, rather than
+        # table_df.iloc[selected_row]["Team"] - .iloc[row] pulls a whole row
+        # across mixed dtypes (int Team + float stat columns), which pandas
+        # silently promotes to a common float dtype (e.g. 60 -> 60.0),
+        # producing a team string ("60.0") that doesn't match any option in
+        # the Team Summary selector and crashes it.
+        st.session_state["team_summary_selected_teams"] = [str(table_df["Team"].iloc[selected_row])]
         # Opens the Team Summary page
         st.switch_page("dashboard_pages/team_summary.py")
 

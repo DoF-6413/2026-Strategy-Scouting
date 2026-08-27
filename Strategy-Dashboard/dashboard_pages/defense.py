@@ -51,8 +51,10 @@ def main():
             continue
 
         team_row = dict()
-        # Sets the value of the Team column to the team number
-        team_row["Team"] = str(team)
+        # Sets the value of the Team column to the team number as an int so
+        # clicking the column header sorts numerically instead of
+        # alphabetically (which would put "60" after "1101").
+        team_row["Team"] = int(team)
         mean = team_defense_df["defense"].mean().round(2)       # Gets the team's mean in the stat rounded to two decimal points
         team_row["Average Defense Rating"] = mean           # Adds a column to the row with the value of the mean.
 
@@ -68,6 +70,11 @@ def main():
         # Add the team's row to the end of the table
         table_df = concat([table_df, DataFrame([team_row])], ignore_index=True)
 
+    # TODO: This table (like the ones on All Teams and Niche Finder) initially
+    # sorts by a stat column, so a user has to manually re-sort by Team every
+    # time to browse teams in order. Consider defaulting all team-number
+    # tables to ascending Team order for better UX, with the stat sort as
+    # something the user opts into via the column header.
     # Sort the table using the values in the first column
     table_df = table_df.sort_values(by="Average Defense Rating", ascending=False)
 

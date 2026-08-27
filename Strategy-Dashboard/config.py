@@ -72,6 +72,17 @@ SLOPE_COLOR_MAPPING = [
 Trend indexes and each of the values in this list correspond to:
 major down, minor down, no significant change, minor up, major up."""
 
+SLOPE_LABEL_MAPPING = [
+    "Major Downward Trend",
+    "Minor Downward Trend",
+    "No Significant Trend",
+    "Minor Upward Trend",
+    "Major Upward Trend",
+]
+"""List holding human-readable labels that correspond to trend indexes, in the
+same order (and for the same indexes) as ``SLOPE_COLOR_MAPPING``. Used as
+chart legend entries."""
+
 ROBOT_PHOTOS_FOLDER = "formatted_photos"
 """String holding the name of the folder for formatted robot photos in the Strategy Dashboard directory."""
 
