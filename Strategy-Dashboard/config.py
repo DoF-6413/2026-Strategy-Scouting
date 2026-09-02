@@ -151,7 +151,7 @@ STAT_KEY_TO_TEXT = {
 """Dictionary mapping stat keys as specified in the database to human readable text"""
 
 STAT_COLOR_MAPPING = {
-    'totalGamePieces': 'black',
+    'totalGamePieces': 'gold',
     'autoHub': 'royalblue',
     'autoHubMiss': 'indianred',
     'teleHub': 'darkblue',
