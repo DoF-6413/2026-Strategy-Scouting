@@ -98,6 +98,12 @@ def main():
 
     # Get teams to be used for the team inputs
     teams_list = utils.get_event_teams(st.session_state["currentEventCode"])
+
+    # Drop teams that aren't at the current event (e.g. an alliance built before switching
+    # Current Event Code) so they don't crash the multiselect's default= below.
+    for alliance in stored_alliances:
+        alliance["teams"] = [team for team in alliance["teams"] if team in teams_list]
+
     # Write the container to edit an alliance for each alliance
     for alliance in stored_alliances:
         create_alliance_edit_container(alliance["teams"], teams_list, alliance["id"])

@@ -606,16 +606,22 @@ def team_selector(selector_key: str, multiselect: bool) -> list:
     # Temporary key the input saves values to
     input_key: str = f"_{selector_key}_selected_teams_input"
 
-    # If there's team selections stored, set those as the selection. Otherwise, use the config default
+    # If there's team selections stored, set those as the selection. Otherwise, use the config
+    # default. Stored selections are filtered down to teams that actually exist for the current
+    # event, since a team selected under a previous Current Event Code may not be present here
+    # and would otherwise crash the multiselect's default= below.
     if session_state_key in st.session_state and st.session_state[session_state_key] != "":
-        selected_teams: list = st.session_state[session_state_key]
-    elif len(selectable_teams) == 0:
-        # No teams registered for this event yet, so there's nothing to default to.
-        selected_teams: list = []
-        st.session_state[session_state_key] = selected_teams
+        selected_teams: list = [
+            team for team in st.session_state[session_state_key]
+            if team in selectable_teams
+        ]
     else:
+        selected_teams: list = []
+
+    if len(selected_teams) == 0 and len(selectable_teams) > 0:
         selected_teams: list = [selectable_teams[0]]
-        st.session_state[session_state_key] = selected_teams
+
+    st.session_state[session_state_key] = selected_teams
 
     # Write the team selector element
     st.multiselect(

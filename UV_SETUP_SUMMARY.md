@@ -19,7 +19,7 @@
    - Defines entry points for main scripts (can use `uv run scouting-match`)
 
 4. **`Strategy-Dashboard/pyproject.toml`** - Dashboard package
-   - Dependencies: `streamlit`, `plotly`, `numpy`, `pandas`, `scipy`, `pymongo`, `tba-api-v3client`, `colorama`, `streamlit-plotly-events`, `tqdm`, `pillow-heif`, `pillow`
+   - Dependencies: `streamlit`, `plotly`, `numpy`, `pandas`, `scipy`, `pymongo`, `tba-api-v3client`, `colorama`, `tqdm`, `pillow-heif`, `pillow`
    - Entry point for dashboard (`uv run strategy-dashboard`)
 
 5. **`Tools/pyproject.toml`** - Utility scripts package

@@ -70,13 +70,6 @@ def sidebar_inputs() -> None:
         args=["currentEventCode", "_currentEventCodeInput"]
         )
 
-    # TODO: Sort selectable_event_codes descending by year (event codes are
-    # "<year><rest>", e.g. "2026azfg") so current-season events sort before
-    # older ones instead of the list being alphabetical/insertion order. If
-    # currentEventCode from a previous run can be recovered (session state
-    # currently resets to "" on every restart, so this needs persistence
-    # added first, e.g. a local file or query param), pin it to the front
-    # regardless of the year sort so it's not buried in the multiselect list.
     # Get a list of all possible event codes that can be selected
     selectable_event_codes: list = utils.get_all_event_codes()
 
@@ -92,12 +85,19 @@ def sidebar_inputs() -> None:
     # never other events' data pulled in silently.
     default_data_event_codes = st.session_state["dataEventCodes"]
 
+    current_event_code: str = st.session_state["currentEventCode"]
+    current_event_year = current_event_code[:4]
+
     # Don't offer the current event as an "additional" option since it's
-    # already included automatically.
-    additional_event_code_options = [
+    # already included automatically. Also restrict to events from the same
+    # season as the Current Event Code (event codes are "<year><rest>", e.g.
+    # "2026azfg") so combined data stays comparable instead of mixing
+    # different years' games together. Sorted alphabetically so the user can
+    # scan the list instead of hunting through insertion order.
+    additional_event_code_options = sorted(
         code for code in selectable_event_codes
-        if code != st.session_state["currentEventCode"]
-    ]
+        if code != current_event_code and code[:4] == current_event_year
+    )
 
     # Write the additional data event codes input
     st.sidebar.multiselect(
