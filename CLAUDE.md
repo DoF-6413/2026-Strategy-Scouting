@@ -57,7 +57,7 @@ See `UV_SCRIPTS.md` for a complete list of all script commands.
 Double-click any of these in the repo root:
 - `Scouting Match v8 Scan.bat` - Match scouting
 - `Scouting Defense v3 Scan.bat` - Defense scouting
-- `Strategy Dashboard.bat` - Opens the dashboard
+- `Strategy_Dashboard.bat` - Opens the dashboard
 
 ## Common Commands
 
@@ -68,7 +68,7 @@ Double-click any of these in the repo root:
 uv run --package frc-6413-strategy-dashboard streamlit run Strategy-Dashboard/main.py
 ```
 
-Or on Windows, double-click `Strategy Dashboard.bat` in the repo root.
+Or on Windows, double-click `Strategy_Dashboard.bat` in the repo root.
 
 ### Collect Scouting Data (QR Code Scanning)
 

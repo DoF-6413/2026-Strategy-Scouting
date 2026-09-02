@@ -34,7 +34,7 @@
 
 1. **Batch files** (Windows):
    - `ScoutingMatchScan.bat` - Runs combined match and defense scouting script
-   - `Strategy Dashboard.bat` - Updated to use `uv run`
+   - `Strategy_Dashboard.bat` - Updated to use `uv run`
    - All now use `cd /d "%~dp0"` for relative path handling
 
 2. **`CLAUDE.md`** - Updated with:

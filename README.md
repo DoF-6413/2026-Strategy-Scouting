@@ -206,7 +206,7 @@ The Strategy Team created a dashboard using Streamlit to visualize the scouting 
 
 #### Dashboard usage
 
-**Note:** In the middle of the 2025 season we created BATch scripts to automate starting the Dashboard.  Simply run the **Strategy Dashboard.bat** script by double clicking on it in File Explorer or manually typing the name in any command prompt opened to this repo.  Don't forget to put the name in double quotes if you try to manually run it!
+**Note:** In the middle of the 2025 season we created BATch scripts to automate starting the Dashboard.  Simply run the **Strategy_Dashboard.bat** script by double clicking on it in File Explorer or manually typing the name in any command prompt opened to this repo.  Don't forget to put the name in double quotes if you try to manually run it!
 
 To see the dashboard, use uv from the repo root (see [UV_SCRIPTS.md](UV_SCRIPTS.md) for the full command reference):
 

@@ -70,7 +70,7 @@ All scripts are run from the **repo root** using `uv run --package <package-name
 | Run Dashboard | `uv run --package frc-6413-strategy-dashboard streamlit run Strategy-Dashboard/main.py` |
 
 **Or use the batch file (Windows):**
-- `Strategy Dashboard.bat` - Opens the dashboard
+- `Strategy_Dashboard.bat` - Opens the dashboard
 
 ### Tools
 
